@@ -147,10 +147,10 @@ int main(int argc, char const *argv[])
 
     switch (argv[1]) {  //todo fix
 
-        case good vable point to good inheritance func: 
+        case start of good vable point to good inheritance func: 
         case middle of good vable point to good inheritance func: 
 
-        case good vable point to bad inheritance func:
+        case start of good vable point to bad inheritance func:
         case middle of good vable point to bad inheritance func:
         
 
@@ -160,9 +160,10 @@ int main(int argc, char const *argv[])
         case crafted vable nonClassFunc:
         case crafted vable middle of nonClassFunc:
         // todo shellcode
-
+        // todo existing code double reference
 
         more options for double inherit**************************************************8
+        e.g. start of first vtable
         default: break;
     }
 
