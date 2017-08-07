@@ -166,7 +166,7 @@ int main(int argc, char const *argv[])
 
         case 0:  // start of good vable point to good inheritance func: 
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 DoubleInheritParent1* object2 = new DoubleInheritChild2();
                 void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
@@ -186,7 +186,7 @@ int main(int argc, char const *argv[])
 
         case 1:  // middle of good vable point to good inheritance func: 
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 DoubleInheritParent1* object2 = new DoubleInheritChild2();
                 void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
@@ -206,7 +206,7 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 DoubleInheritParent2* object2 = new DoubleInheritParent2();
                 void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
@@ -226,7 +226,7 @@ int main(int argc, char const *argv[])
 
         case 3:  // middle of good vable point to bad inheritance func:
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 DoubleInheritParent2* object2 = new DoubleInheritParent2();
                 void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
@@ -245,7 +245,7 @@ int main(int argc, char const *argv[])
 
         case 4:  // crafted vable point to good inheritance func:
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
                 DoubleInheritParent1* object2 = new DoubleInheritChild2();
@@ -279,7 +279,7 @@ int main(int argc, char const *argv[])
 
         case 5:  // crafted vable point to bad inheritance func:
         {
-            if (argv[3] == "d")  // double inherit
+            if (strcmp(argv[3], "d") == 0)  // double inherit
             {
                 void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
                 DoubleInheritParent2* object2 = new DoubleInheritParent2();
@@ -418,31 +418,8 @@ int main(int argc, char const *argv[])
         {
             SingleInherit1 singleObj;
 
-            // void** writeTo;
-            // void* writeThis;
-            // void* buffer[3];
-            
             ParentOne* object = &singleObj;
 
-            // if (((void*)writeTo < (void*)buffer))
-            // {
-            //     cout << "cant overflow...object before buffer" << endl;
-            //     printf("object = %p\tbuffer = %p\n", object, buffer);
-            //     exit(0);
-            // }
-
-            // // todo could be infinite
-            // for (int i = 0; ; ++i)  // overflow the destination+source
-            // {
-            //     *(buffer + i) = (void*)destination;
-            //     if ((void*)(buffer + i) == (void*)&writeTo)
-            //     {
-            //         *(buffer + i) = (void*)object;
-            //         break;
-            //     }
-            // }
-
-            // *writeTo = writeThis; 
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
@@ -458,29 +435,6 @@ int main(int argc, char const *argv[])
         {
             ParentOne* object = new SingleInherit1();
 
-            // void** writeTo;
-            // void* writeThis;
-            // void* buffer[3];
-
-            // if (((void*)writeTo < (void*)buffer))
-            // {
-            //     cout << "cant overflow...object before buffer" << endl;
-            //     printf("object = %p\tbuffer = %p\n", object, buffer);
-            //     exit(0);
-            // }
-
-            // // todo could be infinite
-            // for (int i = 0; ; ++i)  // overflow the destination+source
-            // {
-            //     *(buffer + i) = (void*)destination;
-            //     if ((void*)(buffer + i) == (void*)&writeTo)
-            //     {
-            //         *(buffer + i) = (void*)object;
-            //         break;
-            //     }
-            // }
-
-            // *writeTo = writeThis; 
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
