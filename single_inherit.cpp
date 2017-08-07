@@ -63,7 +63,35 @@ class SingleInherit2:public ParentOne
 
 };
 
-class DoubleInheritParent:public ParentOne, public ParentTwo
+class DoubleInheritParent1:public ParentOne, public ParentTwo
+{
+    public:
+        virtual void doSomething1(char *string)
+        {
+            cout << "DoubleInherit1!!!\nInput string: \"" << string << "\"" << endl;
+        }
+        virtual void doSomething2(char *string){
+
+        }
+
+        virtual void foo1(char *string){
+            //do syscall
+        }
+        virtual void foo2(char *string)
+        {
+            //do syscall
+        }
+        void indirectOverwrite() {
+
+            uint64_t vPTRlocation = *(uint64_t*)this;
+            vPTRlocation += sizeof(void*)*4;  // 3 for array one for initial vptr
+
+            *(buffer + 3) = (void*)vPTRlocation;
+        }
+
+
+};
+class DoubleInheritParent2:public ParentOne, public ParentTwo
 {
     public:
         virtual void doSomething1(char *string)
@@ -105,12 +133,12 @@ class DoubleInheritParent:public ParentOne, public ParentTwo
 
 
 };
-class DoubleInheritChild1:public DoubleInheritParent
+class DoubleInheritChild1:public DoubleInheritParent1
 {
     public:
 };
 
-class DoubleInheritChild2:public DoubleInheritParent
+class DoubleInheritChild2:public DoubleInheritParent1
 {
     public:
 
@@ -126,18 +154,27 @@ void doSyscall(int x, char* string) {
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 3)
+    if (argc != 4)
     {
         cout << "not enough params\n";
         exit(0);
     }
 
-    cout << argv[0] <<" "<<argv[1] <<" "<<argv[2] << endl;    
+    cout << argv[0] <<" "<<argv[1] <<" "<<argv[2]<<" "<<argv[3] << endl;    
 
     switch (atoi(argv[1])) {  //todo fix
 
         case 0:  // start of good vable point to good inheritance func: 
         {
+            if (argv[3] == "d")  // double inherit
+            {
+                DoubleInheritParent1* object2 = new DoubleInheritChild2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+                destination = vtableO2;
+                delete object2;
+                break;
+            }
+
             // P1 obj of SI1 points to SI2
             ParentOne* object2 = new SingleInherit2();
             void* vtableO2 = (void*)*(void**)object2;
@@ -149,8 +186,16 @@ int main(int argc, char const *argv[])
 
         case 1:  // middle of good vable point to good inheritance func: 
         {
-            // P1 obj of SI1 points to SI2 func 2
+            if (argv[3] == "d")  // double inherit
+            {
+                DoubleInheritParent1* object2 = new DoubleInheritChild2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+                destination = (void*)((uint64_t)vtableO2 + sizeof(void*));  // second ptr
+                delete object2;
+                break;
+            }
 
+            // P1 obj of SI1 points to SI2 func 2
             ParentOne* object2 = new SingleInherit2();
             void* vtableO2 = (void*)*(void**)object2;
             destination = (void*)((uint64_t)vtableO2 + sizeof(void*));
@@ -161,6 +206,15 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
+            if (argv[3] == "d")  // double inherit
+            {
+                DoubleInheritParent2* object2 = new DoubleInheritParent2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+                destination = vtableO2;
+                delete object2;
+                break;
+            }
+
             // P1 obj of SI1 points to P2
             ParentTwo* object2 = new ParentTwo();
             void* vtableO2 = (void*)*(void**)object2;
@@ -172,6 +226,14 @@ int main(int argc, char const *argv[])
 
         case 3:  // middle of good vable point to bad inheritance func:
         {
+            if (argv[3] == "d")  // double inherit
+            {
+                DoubleInheritParent2* object2 = new DoubleInheritParent2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+                destination = (void*)((uint64_t)vtableO2 + sizeof(void*));  // second ptr
+                delete object2;
+                break;
+            }
             // P1 obj of SI1 points to P2 func 2
             ParentTwo* object2 = new ParentTwo();
             void* vtableO2 = (void*)*(void**)object2;
@@ -183,6 +245,22 @@ int main(int argc, char const *argv[])
 
         case 4:  // crafted vable point to good inheritance func:
         {
+            if (argv[3] == "d")  // double inherit
+            {
+                void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
+                DoubleInheritParent1* object2 = new DoubleInheritChild2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+
+                for (int i = 0; i < 8; ++i)
+                {
+                    *(buffer+i) = *(((void**)vtableO2));
+                }
+
+                destination = buffer;
+                delete object2;
+                break;
+            }
+
             // make a buffer and use it as a vtable point to SI2
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
             ParentOne* object2 = new SingleInherit2();
@@ -190,7 +268,7 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < 8; ++i)
             {
-                *(buffer+i) = *(((void**)vtableO2)+1);  // second function
+                *(buffer+i) = *(((void**)vtableO2));
             }
 
             destination = buffer;
@@ -201,6 +279,22 @@ int main(int argc, char const *argv[])
 
         case 5:  // crafted vable point to bad inheritance func:
         {
+            if (argv[3] == "d")  // double inherit
+            {
+                void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
+                DoubleInheritParent2* object2 = new DoubleInheritParent2();
+                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+
+                for (int i = 0; i < 8; ++i)
+                {
+                    *(buffer+i) = *(((void**)vtableO2)+1);  // second function
+                }
+
+                destination = buffer;
+                delete object2;
+                break;
+            }
+
             // make a buffer and use it as a vtable point to P2
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
             ParentTwo* object2 = new ParentTwo();
@@ -248,8 +342,6 @@ int main(int argc, char const *argv[])
         // todo shellcode
         // todo existing code double reference
 
-        // more options for double inherit**************************************************8
-        // e.g. start of first vtable
         default: {
             cout << "bad first option\n";
             exit(0);
@@ -268,7 +360,7 @@ int main(int argc, char const *argv[])
 
             if (((void*)object < (void*)buffer))
             {
-                cout << "cant overflow...object before buffer" << endl;
+                cout << "*****cant overflow...object before buffer\n\n" << endl;
                 printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
@@ -298,7 +390,7 @@ int main(int argc, char const *argv[])
 
             if (((void*)object < (void*)buffer))
             {
-                cout << "cant overflow...object before buffer" << endl;
+                cout << "*****cant overflow...object before buffer\n\n" << endl;
                 printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
@@ -406,26 +498,28 @@ int main(int argc, char const *argv[])
         {
             DoubleInheritChild1 doubleObj;
 
-            DoubleInheritParent* object = &doubleObj;
+            DoubleInheritParent1* object = &doubleObj;
 
             for (int i = 0; i < 4; ++i)  // overflow assume that vptr is directly after
             {
                 *(object->buffer + i) = (void*)destination;
             }
 
+            cout << "calling DoubleInheritChild1::F3" << endl;
             object->foo1(attackString);
             break;
         }
 
         case 5:  // heap+DoubleInherit+withinObjectOverFlow:
         {
-            DoubleInheritParent* object = new DoubleInheritChild1();
+            DoubleInheritParent1* object = new DoubleInheritChild1();
 
             for (int i = 0; i < 4; ++i)  // overflow assume that vptr is directly after
             {
                 *(object->buffer + i) = (void*)destination;
             }
 
+            cout << "calling DoubleInheritChild1::F3" << endl;
             object->foo1(attackString);
             break;
         }
@@ -434,10 +528,11 @@ int main(int argc, char const *argv[])
         {
             DoubleInheritChild1 doubleObj;
 
-            DoubleInheritParent* object = &doubleObj;
+            DoubleInheritParent1* object = &doubleObj;
 
             object->indirectOverwrite();
 
+            cout << "calling DoubleInheritChild1::F3" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -445,10 +540,11 @@ int main(int argc, char const *argv[])
         case 7:  // heap+DoubleInherit+INdirectOverwrite:
         {
 
-            DoubleInheritParent* object = new DoubleInheritChild1();
+            DoubleInheritParent1* object = new DoubleInheritChild1();
 
             object->indirectOverwrite();
 
+            cout << "calling DoubleInheritChild1::F3" << endl;
             object->doSomething1(attackString);
             break;
         }
