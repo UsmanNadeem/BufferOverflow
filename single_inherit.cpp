@@ -471,7 +471,7 @@ int main(int argc, char const *argv[])
             if (debug)
             cout << "heap+SingleInherit+sequentialOverFlow\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
-            void** buffer = new void*[6];   // stick with 6 otherwise get memory dump
+            void** buffer = new void*[1];   // stick with 1 otherwise get memory dump
             // void** buffer = (void **)malloc(0x30);
 // printf("%d\n", sizeof(SingleInherit1));
 // printf("%d\n", sizeof(void*));
@@ -497,7 +497,7 @@ int main(int argc, char const *argv[])
                     break;
             }
 
-            // free(buffer);
+            // free(buffer);   // dont free metadata might crash due to corruption
             if (debug)
             printf("new vpointer = %p\n", (void*)*(void**)object);
             if (debug)
