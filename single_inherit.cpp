@@ -214,6 +214,7 @@ int main(int argc, char const *argv[])
                 // break;
             }
 
+            if (debug)
             cout << "point to the start of a vtable with valid inheritance" << endl;
 
             // P1 obj of SI1 points to SI2
@@ -238,6 +239,7 @@ int main(int argc, char const *argv[])
                 // break;
             }
 
+            if (debug)
             cout << "point to the middle of a vtable with valid inheritance" << endl;
 
             // P1 obj of SI1 points to SI2 func 2
@@ -251,6 +253,7 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
+            if (debug)
             cout << "point to the start of a vtable with invalid inheritance" << endl;
 
             if (atoi(argv[2]) > 3)  // double inherit
@@ -275,6 +278,7 @@ int main(int argc, char const *argv[])
         case 3:  // middle of good vable point to bad inheritance func:
         {
 
+            if (debug)
             cout << "point to the middle of a vtable with invalid inheritance" << endl;
 
             if (atoi(argv[2]) > 3)  // double inherit
@@ -298,6 +302,7 @@ int main(int argc, char const *argv[])
         case 4:  // crafted vable point to good inheritance func:
         {
 
+            if (debug)
             cout << "point to a crafted vtable with valid inheritance" << endl;
 
 
@@ -336,6 +341,7 @@ int main(int argc, char const *argv[])
         case 5:  // crafted vable point to bad inheritance func:
         {
 
+            if (debug)
             cout << "point to a crafted vtable with invalid inheritance" << endl;
 
             // dont need this just point to P3 object 
@@ -376,6 +382,7 @@ int main(int argc, char const *argv[])
 
         case 6:  // crafted vable nonClassFunc:
         {
+            if (debug)
             cout << "point to a nonClassFunc" << endl;
 
             // make a buffer and use it as a vtable point to doSyscall
@@ -393,6 +400,7 @@ int main(int argc, char const *argv[])
 
         case 7:  // crafted vable middle of nonClassFunc:
         {
+            if (debug)
             cout << "point to the middle of a nonClassFunc" << endl;
 
             // make a buffer and use it as a vtable point to syslbl
@@ -420,6 +428,7 @@ int main(int argc, char const *argv[])
     switch (atoi(argv[2])) {  //todo fix
         case 0:  //stack+SingleInherit+sequentialOverFlow:
         {
+            if (debug)
             cout << "stack+SingleInherit+sequentialOverFlow\n";
             SingleInherit1 singleObj;
             void* buffer[3];
@@ -456,6 +465,7 @@ int main(int argc, char const *argv[])
 
         case 1:  // heap+SingleInherit+sequentialOverFlow:
         {
+            if (debug)
             cout << "heap+SingleInherit+sequentialOverFlow\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
             void** buffer = new void*[3];
@@ -492,6 +502,7 @@ int main(int argc, char const *argv[])
 
         case 2:  // stack+SingleInherit+indirectOverwrite:
         {
+            if (debug)
             cout << "stack+SingleInherit+indirectOverwrite\n";
             SingleInherit1 singleObj;
 
@@ -513,6 +524,7 @@ int main(int argc, char const *argv[])
 
         case 3:  // heap+SingleInherit+indirectOverwrite:
         {
+            if (debug)
             cout << "heap+SingleInherit+indirectOverwrite\n";
             ParentOne* object = new SingleInherit1();
 
@@ -534,6 +546,7 @@ int main(int argc, char const *argv[])
 //////////////////////////double
         case 4:  // stack+DoubleInherit+withinObjectOverFlow:
         {
+            if (debug)
             cout << "stack+DoubleInherit+withinObjectOverFlow\n";
             DoubleInheritParent1 doubleObj;
 
@@ -559,6 +572,7 @@ int main(int argc, char const *argv[])
 
         case 5:  // heap+DoubleInherit+withinObjectOverFlow:
         {
+            if (debug)
             cout << "heap+DoubleInherit+withinObjectOverFlow\n";
             DoubleInheritParent1* object = new DoubleInheritParent1();
 
@@ -582,6 +596,7 @@ int main(int argc, char const *argv[])
 
         case 6:  // stack+DoubleInherit+INdirectOverwrite:
         {
+            if (debug)
             cout << "stack+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritParent1 doubleObj;
 
@@ -605,6 +620,7 @@ int main(int argc, char const *argv[])
         case 7:  // heap+DoubleInherit+INdirectOverwrite:
         {
 
+            if (debug)
             cout << "heap+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritParent1* object = new DoubleInheritParent1();
 
