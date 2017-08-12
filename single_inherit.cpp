@@ -443,6 +443,9 @@ int main(int argc, char const *argv[])
             }
 
             if (debug)
+                printf("object = %p\tbuffer = %p\n", object, buffer);
+
+            if (debug)
                 printf("old vpointer = %p\n", (void*)*(void**)object);
             // printf("address of buffer = %p \naddress of object = %p\n\n", &buffer[0], &singleObj);
             for (int i = 0; i<((uint64_t)object - (uint64_t)buffer); ++i)  // overflow
@@ -468,7 +471,10 @@ int main(int argc, char const *argv[])
             if (debug)
             cout << "heap+SingleInherit+sequentialOverFlow\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
-            void** buffer = new void*[3];
+            void** buffer = new void*[6];   // stick with 6 otherwise get memory dump
+            // void** buffer = (void **)malloc(0x30);
+// printf("%d\n", sizeof(SingleInherit1));
+// printf("%d\n", sizeof(void*));
             ParentOne* object = new SingleInherit1();
 
             if (((void*)object < (void*)buffer))
@@ -479,6 +485,8 @@ int main(int argc, char const *argv[])
             }
 
             if (debug)
+                printf("object = %p\tbuffer = %p\n", object, buffer);
+            if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             for (int i = 0;i<((uint64_t)object - (uint64_t)buffer) ; ++i)  // overflow
@@ -488,6 +496,8 @@ int main(int argc, char const *argv[])
                 if ((void*)(buffer + i) == (void*)object)
                     break;
             }
+
+            // free(buffer);
             if (debug)
             printf("new vpointer = %p\n", (void*)*(void**)object);
             if (debug)
