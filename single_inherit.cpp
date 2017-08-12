@@ -623,6 +623,8 @@ int main(int argc, char const *argv[])
             break;
         }
 
+        case 8: goto syslbl;
+
         default: {
             cout << "bad second option\n";
             exit(0);
@@ -635,8 +637,9 @@ int main(int argc, char const *argv[])
     return 0;
 
 syslbl:
-    cout << "at syslbl ATTACK successful\n";
     // system(attackString);
+    // printf("%s\n", "at syslbl ATTACK successful\n");
+    cout << "at syslbl ATTACK successful\n";
 
 
 

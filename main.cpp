@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
 {
 	for (int i = 0; i < 8; ++i)
 	{
-		for (int j = 0; j < 7; ++j)
+		for (int j = 0; j < 8; ++j)
 		{
 			cout << endl << "************************************************" << endl;
 			char command[50] = {};
