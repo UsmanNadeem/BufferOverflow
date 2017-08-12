@@ -176,20 +176,28 @@ class DoubleInheritChild2:public DoubleInheritParent1
 
 
 void doSyscall(int x, char* string) {
-    cout << "calling system with args: " << string << endl;
-    system(string);
+    cout << "at doSyscall function ATTACK successful\n";
+
+    // cout << "calling system with args: " << string << endl;
+    // system(string);
 }
 
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 3)
+    if (argc < 3)
     {
         cout << "not enough params\n";
         exit(0);
     }
 
-    cout << argv[0] <<" "<<argv[1] <<" "<<argv[2] << endl;    
+    int debug = 0;
+    if (argc == 4 && strcmp(argv[3], "d") == 0) 
+    {
+        debug = 1;   
+    }
+
+    // cout << argv[0] <<" "<<argv[1] <<" "<<argv[2] << endl;    
 
     switch (atoi(argv[1])) {  //todo fix
 
@@ -205,6 +213,8 @@ int main(int argc, char const *argv[])
                 // delete object2;
                 // break;
             }
+
+            cout << "point to the start of a vtable with valid inheritance" << endl;
 
             // P1 obj of SI1 points to SI2
             ParentOne* object2 = new SingleInherit2();
@@ -228,6 +238,8 @@ int main(int argc, char const *argv[])
                 // break;
             }
 
+            cout << "point to the middle of a vtable with valid inheritance" << endl;
+
             // P1 obj of SI1 points to SI2 func 2
             ParentOne* object2 = new SingleInherit2();
             void* vtableO2 = (void*)*(void**)object2;
@@ -239,6 +251,8 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
+            cout << "point to the start of a vtable with invalid inheritance" << endl;
+
             if (atoi(argv[2]) > 3)  // double inherit
             {
                 ParentThree* object2 = new ParentThree();
@@ -247,6 +261,7 @@ int main(int argc, char const *argv[])
                 delete object2;
                 break;
             }
+
 
             // P1 obj of SI1 points to P2
             ParentTwo* object2 = new ParentTwo();
@@ -259,6 +274,9 @@ int main(int argc, char const *argv[])
 
         case 3:  // middle of good vable point to bad inheritance func:
         {
+
+            cout << "point to the middle of a vtable with invalid inheritance" << endl;
+
             if (atoi(argv[2]) > 3)  // double inherit
             {
                 ParentThree* object2 = new ParentThree();
@@ -267,6 +285,7 @@ int main(int argc, char const *argv[])
                 delete object2;
                 break;
             }
+
             // P1 obj of SI1 points to P2 func 2
             ParentTwo* object2 = new ParentTwo();
             void* vtableO2 = (void*)*(void**)object2;
@@ -278,16 +297,19 @@ int main(int argc, char const *argv[])
 
         case 4:  // crafted vable point to good inheritance func:
         {
+
+            cout << "point to a crafted vtable with valid inheritance" << endl;
+
+
             if (atoi(argv[2]) > 3)  // double inherit
             {
-                cout << "should call the same method\n";
                 void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
                 DoubleInheritParent1* object2 = new DoubleInheritParent1();
-                void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
+                void* vtableO2 = (void*)*((void**)object2 + 4);  // 1 initial vptr + 3 for buffer + 1 for second method
 
                 for (int i = 0; i < 8; ++i)
                 {
-                    *(buffer+i) = *(((void**)vtableO2));
+                    *(buffer+i) = (void*) *(((void**)vtableO2) + 1);
                 }
 
                 destination = buffer;
@@ -313,6 +335,8 @@ int main(int argc, char const *argv[])
 
         case 5:  // crafted vable point to bad inheritance func:
         {
+
+            cout << "point to a crafted vtable with invalid inheritance" << endl;
 
             // dont need this just point to P3 object 
             if (atoi(argv[2]) > 3)  // double inherit
@@ -352,6 +376,8 @@ int main(int argc, char const *argv[])
 
         case 6:  // crafted vable nonClassFunc:
         {
+            cout << "point to a nonClassFunc" << endl;
+
             // make a buffer and use it as a vtable point to doSyscall
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
 
@@ -367,6 +393,8 @@ int main(int argc, char const *argv[])
 
         case 7:  // crafted vable middle of nonClassFunc:
         {
+            cout << "point to the middle of a nonClassFunc" << endl;
+
             // make a buffer and use it as a vtable point to syslbl
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
 
@@ -392,6 +420,7 @@ int main(int argc, char const *argv[])
     switch (atoi(argv[2])) {  //todo fix
         case 0:  //stack+SingleInherit+sequentialOverFlow:
         {
+            cout << "stack+SingleInherit+sequentialOverFlow\n";
             SingleInherit1 singleObj;
             void* buffer[3];
 
@@ -399,12 +428,13 @@ int main(int argc, char const *argv[])
 
             if (((void*)object < (void*)buffer))
             {
-                cout << "*****cant overflow...object before buffer\n\n" << endl;
+                cout << "*****cant overflow...object before buffer" << endl;
                 printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
 
-            printf("old vpointer = %p\n", (void*)*(void**)object);
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*(void**)object);
             // printf("address of buffer = %p \naddress of object = %p\n\n", &buffer[0], &singleObj);
             for (int i = 0; i<((uint64_t)object - (uint64_t)buffer); ++i)  // overflow
             {
@@ -413,8 +443,11 @@ int main(int argc, char const *argv[])
                     break;
             }
 
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            printf("vpointer to copy = %p\n", destination);
+            if (debug) 
+            {
+                printf("new vpointer = %p\n", (void*)*(void**)object);
+                printf("vpointer to copy = %p\n", destination);
+            }
 
             cout << "calling SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
@@ -423,17 +456,19 @@ int main(int argc, char const *argv[])
 
         case 1:  // heap+SingleInherit+sequentialOverFlow:
         {
+            cout << "heap+SingleInherit+sequentialOverFlow\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
             void** buffer = new void*[3];
             ParentOne* object = new SingleInherit1();
 
             if (((void*)object < (void*)buffer))
             {
-                cout << "*****cant overflow...object before buffer\n\n" << endl;
+                cout << "*****cant overflow...object before buffer" << endl;
                 printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
 
+            if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             for (int i = 0;i<((uint64_t)object - (uint64_t)buffer) ; ++i)  // overflow
@@ -443,7 +478,9 @@ int main(int argc, char const *argv[])
                 if ((void*)(buffer + i) == (void*)object)
                     break;
             }
+            if (debug)
             printf("new vpointer = %p\n", (void*)*(void**)object);
+            if (debug)
             printf("vpointer to copy = %p\n", destination);
 
 
@@ -455,15 +492,19 @@ int main(int argc, char const *argv[])
 
         case 2:  // stack+SingleInherit+indirectOverwrite:
         {
+            cout << "stack+SingleInherit+indirectOverwrite\n";
             SingleInherit1 singleObj;
 
             ParentOne* object = &singleObj;
 
+            if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
 
+            if (debug)
             printf("new vpointer = %p\n", (void*)*(void**)object);
+            if (debug)
             printf("vpointer to copy = %p\n", destination);
             cout << "calling SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
@@ -472,13 +513,17 @@ int main(int argc, char const *argv[])
 
         case 3:  // heap+SingleInherit+indirectOverwrite:
         {
+            cout << "heap+SingleInherit+indirectOverwrite\n";
             ParentOne* object = new SingleInherit1();
 
+            if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
             
+            if (debug)
             printf("new vpointer = %p\n", (void*)*(void**)object);
+            if (debug)
             printf("vpointer to copy = %p\n", destination);
             
             cout << "calling SingleInherit1::F1" << endl;
@@ -489,14 +534,23 @@ int main(int argc, char const *argv[])
 //////////////////////////double
         case 4:  // stack+DoubleInherit+withinObjectOverFlow:
         {
+            cout << "stack+DoubleInherit+withinObjectOverFlow\n";
             DoubleInheritParent1 doubleObj;
 
             DoubleInheritParent1* object = &doubleObj;
+
+            if (debug)
+            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
 
             for (int i = 0; i < 4; ++i)  // overflow assume that vptr is directly after
             {
                 *(object->buffer + i) = (void*)destination;
             }
+
+            if (debug)
+            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+            if (debug)
+            printf("vpointer to copy = %p\n", destination);
 
             cout << "calling DoubleInheritParent1::F3 ParentTwo::F1" << endl;
             object->foo1(attackString);
@@ -505,12 +559,21 @@ int main(int argc, char const *argv[])
 
         case 5:  // heap+DoubleInherit+withinObjectOverFlow:
         {
+            cout << "heap+DoubleInherit+withinObjectOverFlow\n";
             DoubleInheritParent1* object = new DoubleInheritParent1();
+
+            if (debug)
+            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
 
             for (int i = 0; i < 4; ++i)  // overflow assume that vptr is directly after
             {
                 *(object->buffer + i) = (void*)destination;
             }
+
+            if (debug)
+            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+            if (debug)
+            printf("vpointer to copy = %p\n", destination);
 
             cout << "calling DoubleInheritParent1::F3 ParentTwo::F1" << endl;
             object->foo1(attackString);
@@ -519,11 +582,20 @@ int main(int argc, char const *argv[])
 
         case 6:  // stack+DoubleInherit+INdirectOverwrite:
         {
+            cout << "stack+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritParent1 doubleObj;
 
             DoubleInheritParent1* object = &doubleObj;
 
+            if (debug)
+            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
+
             object->overflow();
+
+            if (debug)
+            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+            if (debug)
+            printf("vpointer to copy = %p\n", destination);
 
             cout << "calling DoubleInheritParent1::F3 ParentTwo::F1" << endl;
             object->foo1(attackString);
@@ -533,9 +605,18 @@ int main(int argc, char const *argv[])
         case 7:  // heap+DoubleInherit+INdirectOverwrite:
         {
 
+            cout << "heap+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritParent1* object = new DoubleInheritParent1();
 
+            if (debug)
+            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
+
             object->overflow();
+
+            if (debug)
+            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+            if (debug)
+            printf("vpointer to copy = %p\n", destination);
 
             cout << "calling DoubleInheritParent1::F3 ParentTwo::F1" << endl;
             object->foo1(attackString);
@@ -554,7 +635,8 @@ int main(int argc, char const *argv[])
     return 0;
 
 syslbl:
-    system(attackString);
+    cout << "at syslbl ATTACK successful\n";
+    // system(attackString);
 
 
 
