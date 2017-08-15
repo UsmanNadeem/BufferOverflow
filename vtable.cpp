@@ -11,6 +11,7 @@ void* destination = NULL;
 char* attackString = "sh";
 int arg1;
 int arg2;
+int debug;
 
 
 class ParentOne
@@ -179,7 +180,7 @@ void doSyscall(int x, char* string) {
 
 
 
-void doUAF (void* ptr, int debug, int size) {
+void doUAF (void* ptr, int size) {
     void** newPtr = NULL;
     switch (arg1)
     {
@@ -276,7 +277,7 @@ void doUAF (void* ptr, int debug, int size) {
                 *newPtr = destination;
                 break;
             }
-            
+
             void* temp = (void*) new ParentFour();
             memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFour) ? sizeof(ParentFour) : size-4);
             free (temp);
@@ -350,7 +351,7 @@ int main(int argc, char const *argv[])
         exit(0);
     }
 
-    int debug = 0;
+    debug = 0;
     if (argc == 4 && strcmp(argv[3], "d") == 0) 
     {
         debug = 1;   
@@ -787,7 +788,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(SingleInherit1));
+                doUAF(object, sizeof(SingleInherit1));
                 goto attack1; 
             }
 
@@ -869,7 +870,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(SingleInherit1));
+                doUAF(object, sizeof(SingleInherit1));
                 goto attack3; 
             }
 
@@ -959,7 +960,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(SingleInherit1));
+                doUAF(object, sizeof(SingleInherit1));
                 goto attack5; 
             }
 
@@ -1039,7 +1040,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(SingleInherit1));
+                doUAF(object, sizeof(SingleInherit1));
                 goto attack7; 
             }
 
@@ -1106,7 +1107,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(DoubleInheritChild1));
+                doUAF(object, sizeof(DoubleInheritChild1));
                 goto attack9; 
             }
 
@@ -1173,7 +1174,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(DoubleInheritChild1));
+                doUAF(object, sizeof(DoubleInheritChild1));
                 goto attack11; 
             }
 
@@ -1258,7 +1259,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(ParentThree));
+                doUAF(object, sizeof(ParentThree));
                 goto attack13; 
             }
 
@@ -1340,7 +1341,7 @@ int main(int argc, char const *argv[])
             if (uaf)
             {
                 delete object;
-                doUAF(object, debug, sizeof(ParentThree));
+                doUAF(object, sizeof(ParentThree));
                 goto attack15; 
             }
 
