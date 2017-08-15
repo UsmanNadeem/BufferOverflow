@@ -800,7 +800,7 @@ int main(int argc, char const *argv[])
             }
 
             if(debug)
-                cout << "calling SingleInherit1::F1" << endl;
+                cout << "calling ParentOne::SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -853,7 +853,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling SingleInherit1::F1" << endl;
+                    cout << "calling ParentOne::SingleInherit1::F1" << endl;
                 }
 
                 object->doSomething1(attackString);
@@ -887,7 +887,7 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
+            cout << "calling ParentOne::SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -916,7 +916,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling SingleInherit1::F1" << endl;
+                    cout << "calling ParentOne::SingleInherit1::F1" << endl;
                 }
                 object->doSomething1(attackString);
                 break;
@@ -971,7 +971,7 @@ int main(int argc, char const *argv[])
             }
 
             if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
+            cout << "calling SingleInherit1::SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -1025,7 +1025,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling SingleInherit1::F1" << endl;
+                    cout << "calling SingleInherit1::SingleInherit1::F1" << endl;
                 }
                     
                 object->doSomething1(attackString);
@@ -1059,7 +1059,7 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             if(debug)
-            cout << "calling SingleInherit1::F1" << endl;
+            cout << "calling SingleInherit1::SingleInherit1::F1" << endl;
             object->doSomething1(attackString);
             break;
         }
@@ -1089,7 +1089,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling SingleInherit1::F1" << endl;
+                    cout << "calling SingleInherit1::SingleInherit1::F1" << endl;
                 }
                     
                 object->doSomething1(attackString);
@@ -1127,7 +1127,7 @@ int main(int argc, char const *argv[])
             printf("vpointer to copy = %p\n", destination);
 
             if(debug)
-            cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+            cout << "calling DoubleInheritChild1::DoubleInheritChild1::F3 ParentFour::F1" << endl;
             object->ParentFourfoo1(attackString);
             break;
         }
@@ -1160,7 +1160,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*((void**)object + 4));
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                    cout << "calling DoubleInheritChild1::DoubleInheritChild1::F3 ParentFour::F1" << endl;
                 }
 
                 object->ParentFourfoo1(attackString);
@@ -1194,7 +1194,7 @@ int main(int argc, char const *argv[])
             printf("vpointer to copy = %p\n", destination);
 
             if(debug)
-            cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+            cout << "calling DoubleInheritChild1::DoubleInheritChild1::F3 ParentFour::F1" << endl;
             object->ParentFourfoo1(attackString);
             break;
         }
@@ -1226,7 +1226,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*((void**)object + 4));
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                    cout << "calling DoubleInheritChild1::DoubleInheritChild1::F3 ParentFour::F1" << endl;
                 }
 
                 object->ParentFourfoo1(attackString);
@@ -1280,7 +1280,7 @@ int main(int argc, char const *argv[])
             }
 
             if(debug)
-            cout << "calling ParentThree::F1" << endl;
+            cout << "calling ParentThree::ParentThree::F1" << endl;
             object->foo1(attackString);
             break;
         }
@@ -1331,7 +1331,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling ParentThree::F1" << endl;
+                    cout << "calling ParentThree::ParentThree::F1" << endl;
                 }
 
                 object->foo1(attackString);
@@ -1365,7 +1365,7 @@ int main(int argc, char const *argv[])
             if (debug)
             printf("vpointer to copy = %p\n", destination);
             if(debug)
-            cout << "calling ParentThree::F1" << endl;
+            cout << "calling ParentThree::ParentThree::F1" << endl;
             object->foo1(attackString);
             break;
         }
@@ -1396,7 +1396,7 @@ int main(int argc, char const *argv[])
                 {
                     printf("new vpointer = %p\n", (void*)*(void**)object);
                     printf("vpointer to copy = %p\n", destination);
-                    cout << "calling ParentThree::F1" << endl;
+                    cout << "calling ParentThree::ParentThree::F1" << endl;
                 }
 
                 object->foo1(attackString);
