@@ -427,11 +427,6 @@ int main(int argc, char const *argv[])
                 if(debug)
                 cout << "not possible for now\n";
                 exit(0);
-                // DoubleInheritChild1* object2 = new DoubleInheritChild2();
-                // void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
-                // destination = vtableO2;
-                // delete object2;
-                // break;
             }
 
             if (uaf) break; // if uaf enabled then we just create an object of that type
@@ -455,11 +450,6 @@ int main(int argc, char const *argv[])
                 if(debug)
                 cout << "not possible for now\n";
                 exit(0);
-                // DoubleInheritChild1* object2 = new DoubleInheritChild2();
-                // void* vtableO2 = (void*)*((void**)object2 +4);  // 1 ptr + 3 for buffer
-                // destination = (void*)((uint64_t)vtableO2 + sizeof(void*));  // second ptr
-                // delete object2;
-                // break;
             }
 
             // if (uaf) break; // if uaf enabled then we just create an object of that type
@@ -826,6 +816,12 @@ int main(int argc, char const *argv[])
 // printf("%d\n", sizeof(void*));
             ParentOne* object = new SingleInherit1();
 
+            if (debug)
+            {
+                printf("object = %p\tbuffer = %p\n", object, buffer);
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+            }
+
             if (uaf)
             {
                 delete object;
@@ -837,15 +833,9 @@ int main(int argc, char const *argv[])
             {
                 if (debug)
                 cout << "*****cant overflow...object before buffer" << endl;
-                if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
 
-            if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
 
             for (int i = 0;i<((uint64_t)object - (uint64_t)buffer) ; ++i)  // overflow
             {
@@ -856,15 +846,15 @@ int main(int argc, char const *argv[])
             }
 
             // free(buffer);   // dont free metadata might crash due to corruption
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
 
 
             attack1:    
-                if(debug)
+                if (debug)
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
                     cout << "calling SingleInherit1::F1" << endl;
+                }
 
                 object->doSomething1(attackString);
 
@@ -908,6 +898,9 @@ int main(int argc, char const *argv[])
             cout << "heap+SingleInherit+indirectOverwrite\n";
             ParentOne* object = new SingleInherit1();
 
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+
             if (uaf)
             {
                 delete object;
@@ -915,19 +908,16 @@ int main(int argc, char const *argv[])
                 goto attack3; 
             }
 
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
-
             *(void**)object = destination;
             
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
             
             attack3:
-                if(debug)
+                if (debug)
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
                     cout << "calling SingleInherit1::F1" << endl;
+                }
                 object->doSomething1(attackString);
                 break;
         }
@@ -998,6 +988,12 @@ int main(int argc, char const *argv[])
 // printf("%d\n", sizeof(void*));
             SingleInherit1* object = new SingleInherit1();
 
+            if (debug)
+            {
+                printf("object = %p\tbuffer = %p\n", object, buffer);
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+            }
+
             if (uaf)
             {
                 delete object;
@@ -1005,19 +1001,14 @@ int main(int argc, char const *argv[])
                 goto attack5; 
             }
 
+
             if (((void*)object < (void*)buffer))
             {
                 if (debug)
-                cout << "*****cant overflow...object before buffer" << endl;
-                if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
+                    cout << "*****cant overflow...object before buffer" << endl;
                 exit(0);
             }
 
-            if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
 
             for (int i = 0;i<((uint64_t)object - (uint64_t)buffer) ; ++i)  // overflow
             {
@@ -1028,14 +1019,15 @@ int main(int argc, char const *argv[])
             }
 
             // free(buffer);   // dont free metadata might crash due to corruption
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
 
             attack5:
                 if(debug)
-                cout << "calling SingleInherit1::F1" << endl;
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
+                    cout << "calling SingleInherit1::F1" << endl;
+                }
+                    
                 object->doSomething1(attackString);
 
                 break;
@@ -1078,6 +1070,9 @@ int main(int argc, char const *argv[])
             cout << "heap+SingleInherit+indirectOverwrite\n";
             SingleInherit1* object = new SingleInherit1();
 
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+
             if (uaf)
             {
                 delete object;
@@ -1085,19 +1080,18 @@ int main(int argc, char const *argv[])
                 goto attack7; 
             }
 
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
             
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
             
             attack7:
                 if(debug)
-                cout << "calling SingleInherit1::F1" << endl;
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
+                    cout << "calling SingleInherit1::F1" << endl;
+                }
+                    
                 object->doSomething1(attackString);
                 break;
         }
@@ -1145,6 +1139,9 @@ int main(int argc, char const *argv[])
 
             DoubleInheritChild1* object = new DoubleInheritChild1();
 
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*((void**)object + 4));
+
             if (uaf)
             {
                 delete object;
@@ -1152,22 +1149,20 @@ int main(int argc, char const *argv[])
                 goto attack9; 
             }
 
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
-
             for (int i = 0; i < 4; ++i)  // overflow assume that vptr is directly after
             {
                 *(object->buffer + i) = (void*)destination;
             }
 
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
 
             attack9:
                 if(debug)
-                cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                {
+                    printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+                    printf("vpointer to copy = %p\n", destination);
+                    cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                }
+
                 object->ParentFourfoo1(attackString);
                 break;
         }
@@ -1212,6 +1207,9 @@ int main(int argc, char const *argv[])
 
             DoubleInheritChild1* object = new DoubleInheritChild1();
 
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*((void**)object + 4));
+
             if (uaf)
             {
                 delete object;
@@ -1219,19 +1217,18 @@ int main(int argc, char const *argv[])
                 goto attack11; 
             }
 
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*((void**)object + 4));
 
             object->overflow();
 
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*((void**)object + 4));
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
 
             attack11:
                 if(debug)
+                {
+                    printf("new vpointer = %p\n", (void*)*((void**)object + 4));
+                    printf("vpointer to copy = %p\n", destination);
                     cout << "calling DoubleInheritChild1::F3 ParentFour::F1" << endl;
+                }
+
                 object->ParentFourfoo1(attackString);
                 break;
         }
@@ -1297,6 +1294,12 @@ int main(int argc, char const *argv[])
 
             ParentThree* object = new ParentThree();
 
+            if (debug) 
+            {
+                printf("object = %p\tbuffer = %p\n", object, buffer);
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+            }
+
             if (uaf)
             {
                 delete object;
@@ -1308,15 +1311,9 @@ int main(int argc, char const *argv[])
             {
                 if (debug)
                 cout << "*****cant overflow...object before buffer" << endl;
-                if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
                 exit(0);
             }
 
-            if (debug)
-                printf("object = %p\tbuffer = %p\n", object, buffer);
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
 
             for (int i = 0;i<((uint64_t)object - (uint64_t)buffer) ; ++i)  // overflow
             {
@@ -1327,15 +1324,16 @@ int main(int argc, char const *argv[])
             }
 
             // free(buffer);   // dont free metadata might crash due to corruption
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
 
 
             attack13:
                 if(debug)
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
                     cout << "calling ParentThree::F1" << endl;
+                }
+
                 object->foo1(attackString);
 
                 break;
@@ -1379,6 +1377,9 @@ int main(int argc, char const *argv[])
 
             ParentThree* object = new ParentThree();
 
+            if (debug)
+                printf("old vpointer = %p\n", (void*)*(void**)object);
+
             if (uaf)
             {
                 delete object;
@@ -1386,19 +1387,17 @@ int main(int argc, char const *argv[])
                 goto attack15; 
             }
 
-            if (debug)
-            printf("old vpointer = %p\n", (void*)*(void**)object);
 
             *(void**)object = destination;
             
-            if (debug)
-            printf("new vpointer = %p\n", (void*)*(void**)object);
-            if (debug)
-            printf("vpointer to copy = %p\n", destination);
             
             attack15:
                 if(debug)
+                {
+                    printf("new vpointer = %p\n", (void*)*(void**)object);
+                    printf("vpointer to copy = %p\n", destination);
                     cout << "calling ParentThree::F1" << endl;
+                }
 
                 object->foo1(attackString);
                 break;
