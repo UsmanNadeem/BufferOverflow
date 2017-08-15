@@ -33,12 +33,18 @@ class ParentTwo
         
         virtual void foo1(char *string){   // attack
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentTwo::F1" << endl;
+            if (debug)
+            {
+                printf("in ParentTwo::F1\n");
+            }
         }
         virtual void foo2(char *string)   // attack
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentTwo::F2" << endl;
+            if (debug)
+            {
+                printf("in ParentTwo::F2\n");
+            }
         }
 };
 
@@ -62,12 +68,18 @@ class ParentFour
         
         virtual void ParentFourfoo1(char *string){   // attack
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentFour::F1" << endl;
+            if (debug)
+            {
+                printf("in ParentFour::F1\n");
+            }
         }
         virtual void ParentFourfoo2(char *string)   // attack
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentFour::F2" << endl;
+            if (debug)
+            {
+                printf("in ParentFour::F2\n");
+            }
         }
 };
 
@@ -77,12 +89,18 @@ class ParentFive
         
         virtual void ParentFivefoo1(char *string){   // attack
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentFive::F1" << endl;
+            if (debug)
+            {
+                printf("in ParentFive::F1\n");
+            }
         }
         virtual void ParentFivefoo2(char *string)   // attack
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called ParentFive::F2" << endl;
+            if (debug)
+            {
+                printf("in ParentFive::F2\n");
+            }
         }
 };
 
@@ -104,11 +122,17 @@ class SingleInherit2:public ParentOne
         virtual void doSomething1(char *string)
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called SingleInherit2::F1" << endl;
+            if (debug)
+            {
+                printf("in SingleInherit2::F1\n");
+            }
         }
         virtual void doSomething2(char *string){
             printf("%d %d\n", arg1, arg2);
-            // cout << "called SingleInherit2::F2" << endl;
+            if (debug)
+            {
+                printf("in SingleInherit2::F2\n");
+            }
         }
 
 };
@@ -147,21 +171,33 @@ class DoubleInheritChild2:public ParentThree, public ParentFour
         virtual void ParentFourfoo1(char *string)
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called DoubleInheritChild2::F1" << endl;
+            if (debug)
+            {
+                printf("in DoubleInheritChild2::F1\n");
+            }
         }
         virtual void ParentFourfoo2(char *string){
             printf("%d %d\n", arg1, arg2);
-            // cout << "called DoubleInheritChild2::F2" << endl;
+            if (debug)
+            {
+                printf("in DoubleInheritChild2::F2\n");
+            }
         }
 
         virtual void ParentFivefoo1(char *string){
             printf("%d %d\n", arg1, arg2);
-            // cout << "called DoubleInheritChild2::F3" << endl;
+            if (debug)
+            {
+                printf("in DoubleInheritChild2::F3\n");
+            }
         }
         virtual void ParentFivefoo2(char *string)
         {
             printf("%d %d\n", arg1, arg2);
-            // cout << "called DoubleInheritChild2::F4" << endl;
+            if (debug)
+            {
+                printf("in DoubleInheritChild2::F4\n");
+            }
         }
 
 
@@ -169,7 +205,12 @@ class DoubleInheritChild2:public ParentThree, public ParentFour
 
 
 void doSyscall(int x, char* string) {
-            printf("%d %d\n", arg1, arg2);
+    printf("%d %d\n", arg1, arg2);
+
+    if (debug)
+    {
+        printf("in doSyscall func\n");
+    }
     // cout << "at doSyscall function ATTACK successful\n";
 
     // cout << "calling system with args: " << string << endl;
