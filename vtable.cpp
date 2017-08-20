@@ -13,11 +13,9 @@ int arg1;
 int arg2;
 int debug;
 
-
 class ParentOne
 {
     public:
-        void* buffer[3];
         virtual void doSomething1(char *string){
             cout << "called ParentOne::F1" << endl;
 
@@ -238,29 +236,48 @@ void doUAF (void* ptr, int size) {
                 cout << "UAF middle of good inheritance" << endl;
 
             newPtr = (void**) malloc(size);
-            if (arg2 == 9 || arg2 == 11 || arg2 == 13 || arg2 == 15)  // double inherit overwrite 2nd vptr
-                newPtr[4] = destination;
-            else
-                *newPtr = destination;
+            *newPtr = destination;
 
             break;
         }
         case 2: {
             if (debug)
                 cout << "uaf with invalid inheritance" << endl;
-
-            newPtr = (void**) new ParentTwo();
+            
+            if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
+            {
+                newPtr = (void**) malloc(size);
+                void* temp = (void*) new ParentTwo();
+                memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentTwo) ? sizeof(ParentTwo) : size-4);
+                free (temp);
+            } 
+            else
+            {
+                if (size == sizeof(ParentTwo))
+                {
+                    newPtr = (void**) new ParentTwo();
+                } else
+                {
+                    newPtr = (void**) malloc(size);
+                    void* temp = (void*) new ParentTwo();
+                    memcpy((void*)(newPtr), temp, size > sizeof(ParentTwo) ? sizeof(ParentTwo) : size);
+                    free (temp);
+                }
+            }
 
             break;
         }
         case 3: {
             if (debug) 
                 cout << "uaf middle of invalid inheritance" << endl;
+
             newPtr = (void**) malloc(size);
+
             if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
                 newPtr[4] = destination;
             else
                 *newPtr = destination;
+
             break;
         }
         case 4: {
@@ -271,6 +288,7 @@ void doUAF (void* ptr, int size) {
                 newPtr[4] = destination;
             else
                 *newPtr = destination;
+
             break;
         }
         case 5: {
@@ -311,17 +329,27 @@ void doUAF (void* ptr, int size) {
         case 8: {
             if (debug) 
                 cout << "uaf start of a vtable of other parent in double inheritance" << endl;
-            newPtr = (void**) malloc(size);
 
             if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
             {
-                *newPtr = destination;
-                break;
+                newPtr = (void**) malloc(size);
+                void* temp = (void*) new ParentFour();
+                memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFour) ? sizeof(ParentFour) : size-4);
+                free (temp);
+            } 
+            else
+            {
+                if (size == sizeof(ParentFour))
+                {
+                    newPtr = (void**) new ParentFour();
+                } else
+                {
+                    newPtr = (void**) malloc(size);
+                    void* temp = (void*) new ParentFour();
+                    memcpy((void*)(newPtr), temp, size > sizeof(ParentFour) ? sizeof(ParentFour) : size);
+                    free (temp);
+                }
             }
-
-            void* temp = (void*) new ParentFour();
-            memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFour) ? sizeof(ParentFour) : size-4);
-            free (temp);
 
             break;
         }
@@ -340,15 +368,26 @@ void doUAF (void* ptr, int size) {
             if (debug) 
                 cout << "uaf start of a vtable of third unrelated parent in double inheritance" << endl;
 
-            newPtr = (void**) malloc(size);
             if (arg2 == 9 || arg2 == 11)  // double inherit overwrite 2nd vptr
             {
-                *newPtr = destination;
-                break;
+                newPtr = (void**) malloc(size);
+                void* temp = (void*) new ParentFive();
+                memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFive) ? sizeof(ParentFive) : size-4);
+                free (temp);
+            } 
+            else
+            {
+                if (size == sizeof(ParentFive))
+                {
+                    newPtr = (void**) new ParentFive();
+                } else
+                {
+                    newPtr = (void**) malloc(size);
+                    void* temp = (void*) new ParentFive();
+                    memcpy((void*)(newPtr), temp, size > sizeof(ParentFive) ? sizeof(ParentFive) : size);
+                    free (temp);
+                }
             }
-            void* temp = (void*) new ParentFive();
-            memcpy((void*)(newPtr + 4), temp, size-4 > sizeof(ParentFive) ? sizeof(ParentFive) : size-4);
-            free (temp);
 
             break;
         }
@@ -386,6 +425,7 @@ void doUAF (void* ptr, int size) {
 
 int main(int argc, char const *argv[])
 {
+    // stdout = freopen("/home/linux/Desktop/bench/tmp", "w", stdout);
     if (argc < 3)
     {
         cout << "not enough params\n";

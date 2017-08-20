@@ -47,16 +47,16 @@ int main(int argc, char const *argv[])
 			{
 				if (uaf)
 				{
-					sprintf(command,"./attack %d %d u d",i, j);
+					sprintf(command,"/home/linux/Desktop/bench/attack %d %d u d",i, j);
 				} else {
-					sprintf(command,"./attack %d %d d",i, j);
+					sprintf(command,"/home/linux/Desktop/bench/attack %d %d d",i, j);
 				}
-			} else if (uaf) {
+			} else {
 				if (uaf)
 				{
-					sprintf(command,"./attack %d %d u",i, j);
+					sprintf(command,"/home/linux/Desktop/bench/attack %d %d u",i, j);
 				} else {
-					sprintf(command,"./attack %d %d",i, j);
+					sprintf(command,"/home/linux/Desktop/bench/attack %d %d",i, j);
 				}
 			}
 
