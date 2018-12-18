@@ -9,63 +9,120 @@
 using namespace std;
 
 
+int foo(int argc, char const *argv[], std::string fileName);
 
-int main(int argc, char const *argv[])
+int main(int argc, char const *argv[]) {
+
+	std::cout << "\n*******************************************************\n";
+	std::cout << "Running Original Benchmark\n";
+	int a = foo (argc, argv, "/home/linux/Desktop/bench/attack"); 
+	std::cout << "Running CPI compiled Benchmark\n";
+	int b = foo (argc, argv, "/home/linux/Desktop/bench/attack.cpi"); 
+	std::cout << "Running CPS compiled Benchmark\n";
+	int c = foo (argc, argv, "/home/linux/Desktop/bench/attack.cps"); 
+	std::cout << "Running SS compiled Benchmark\n";
+	int d = foo (argc, argv, "/home/linux/Desktop/bench/attack.ss"); 
+
+	std::cout << "\n\n*******************************************************\n";
+	std::cout << "Original Passed: " << a << "/" << 90 << std::endl; 
+	std::cout << "CPI Passed: " << b << "/" << 90 << std::endl; 
+	std::cout << "CPS Passed: " << c << "/" << 90 << std::endl; 
+	std::cout << "SS Passed: " << d << "/" << 90 << std::endl; 
+	return 0;
+}
+
+int foo(int argc, char const *argv[], std::string fileName)
 {
 	int debug = 0;
-	int uaf = 0;
 
 	if (argc == 2 && strcmp(argv[1], "d") == 0 )
 	{
 		debug = 1;
 	}
 
-	if (argc == 2 && strcmp(argv[1], "u") == 0 )
-	{
-		uaf = 1;
-	}
-
-	if (argc == 3 && strcmp(argv[2], "d") == 0 )
-	{
-		debug = 1;
-	}
-
-	if (argc == 3 && strcmp(argv[1], "u") == 0 )
-	{
-		uaf = 1;
-	}
-
+	const int total = 90;
+	int currentNum = 0;
+	int numPassed = 0;
 	for (int i = 0; i < 12; ++i)
 	{
 		for (int j = 0; j < 16; ++j)
-		{
-            if(debug)
-			cout << endl << "************************************************" << endl;
+		{	
+			if (i < 2)
+				if (j>7&&j<12)
+					continue;
+			if (i>7&&i<12)
+				if (j < 8)
+					continue;
+
+			if (j == 4 
+			|| j == 5
+			|| j == 6
+			|| j == 7
+			|| j == 12
+			|| j == 13
+			|| j == 14
+			|| j == 15
+			)
+				continue;
+
 			char command[50] = {};
-
 			if (debug)
-			{
-				if (uaf)
-				{
-					sprintf(command,"/home/linux/Desktop/bench/attack %d %d u d",i, j);
-				} else {
-					sprintf(command,"/home/linux/Desktop/bench/attack %d %d d",i, j);
-				}
-			} else {
-				if (uaf)
-				{
-					sprintf(command,"/home/linux/Desktop/bench/attack %d %d u",i, j);
-				} else {
-					sprintf(command,"/home/linux/Desktop/bench/attack %d %d",i, j);
-				}
-			}
+				sprintf(command,"%s %d %d d", fileName.c_str(), i, j);
+			else
+				sprintf(command,"%s %d %d", fileName.c_str(), i, j);
 
-            if(debug)
-			cout << "executing " << command << endl;
-			// printf("****%s\n", command.c_str());
-		    system(command);
-		    // sleep(1);
+			if(debug) cout << "executing " << command << endl;
+
+			std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
+
+			int status = system(command);
+
+			if (WIFEXITED(status)) {
+				int result = WEXITSTATUS(status);
+				if (result == 1) ++numPassed;
+			}
+			std::cout << "\n\n";
+
+			if (j == 0
+			|| j == 2
+			|| j == 4
+			|| j == 6
+			|| j == 8
+			|| j == 10
+			|| j == 12
+			|| j == 14
+			/*^^ stack*/
+			|| j == 1
+			|| j == 5
+			|| j == 7
+			|| j == 9
+			|| j == 13
+			|| j == 15
+			/*redundant copies*/
+			)
+				continue;
+
+			char commandUAF[50] = {};
+			if (debug)
+				sprintf(commandUAF,"%s %d %d u d", fileName.c_str(), i, j);
+			else
+				sprintf(commandUAF,"%s %d %d u", fileName.c_str(), i, j);
+			if(debug) std::cout << "executing " << commandUAF << endl;
+
+			std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
+			status = system(command);
+			if (WIFEXITED(status)) {
+				int result = WEXITSTATUS(status);
+				if (result == 1) ++numPassed;
+			}
 		}
 	}
-	return 0;
+
+
+	return numPassed;
 }
+
+/*0 = normal exec
+-1 = attacked
+-2 = bad option
+-3 = attack failed*/

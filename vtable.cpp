@@ -8,20 +8,21 @@
 using namespace std;
 
 void* destination = NULL;
-char* attackString = "sh";
+char* attackString = "\tAttacked!";
 int arg1;
 int arg2;
 int debug;
+int uaf = 0;
 
 class ParentOne
 {
     public:
         virtual void doSomething1(char *string){
-            cout << "called ParentOne::F1" << endl;
+            cout << "\tcalled ParentOne::F1" << endl;
 
         }
         virtual void doSomething2(char *string){
-            cout << "called ParentOne::F2" << endl;
+            cout << "\tcalled ParentOne::F2" << endl;
         }
 };
 
@@ -30,19 +31,23 @@ class ParentTwo
     public:
         
         virtual void foo1(char *string){   // attack
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentTwo::F1\n");
+                printf("\tin ParentTwo::F1\n");
             }
+            exit(1);
         }
         virtual void foo2(char *string)   // attack
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentTwo::F2\n");
+                printf("\tin ParentTwo::F2\n");
             }
+            exit(1);
         }
 };
 
@@ -52,11 +57,11 @@ class ParentThree
         
         void* buffer[3];
         virtual void foo1(char *string){
-            cout << "called ParentThree::F1" << endl;
+            cout << "\tcalled ParentThree::F1" << endl;
         }
         virtual void foo2(char *string)
         {
-            cout << "called ParentThree::F2" << endl;
+            cout << "\tcalled ParentThree::F2" << endl;
         }
 };
 
@@ -65,23 +70,27 @@ class ParentFour
     public:
         
         virtual void ParentFourfoo1(char *string){   // attack
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentFour::F1\n");
+                printf("\tin ParentFour::F1\n");
             }
+            exit(1);
         }
         virtual void ParentFourfoo2(char *string)   // attack
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentFour::F2\n");
+                printf("\tin ParentFour::F2\n");
             }
+            exit(1);
         }
         virtual void ParentFourfoo3(char *string)
         {
-            cout << "called ParentFour::F3" << endl;
+            cout << "\tcalled ParentFour::F3" << endl;
         }
 };
 
@@ -90,19 +99,23 @@ class ParentFive
     public:
         
         virtual void ParentFivefoo1(char *string){   // attack
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentFive::F1\n");
+                printf("\tin ParentFive::F1\n");
             }
+            exit(1);
         }
         virtual void ParentFivefoo2(char *string)   // attack
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in ParentFive::F2\n");
+                printf("\tin ParentFive::F2\n");
             }
+            exit(1);
         }
 };
 
@@ -111,10 +124,10 @@ class SingleInherit1:public ParentOne
     public:
         virtual void doSomething1(char *string)
         {
-            cout << "called SingleInherit1::F1" << endl;
+            cout << "\tcalled SingleInherit1::F1" << endl;
         }
         virtual void doSomething2(char *string){
-            cout << "called SingleInherit1::F2" << endl;
+            cout << "\tcalled SingleInherit1::F2" << endl;
         }
 
 };
@@ -123,18 +136,22 @@ class SingleInherit2:public ParentOne
     public:
         virtual void doSomething1(char *string)
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in SingleInherit2::F1\n");
+                printf("\tin SingleInherit2::F1\n");
             }
+            exit(1);
         }
         virtual void doSomething2(char *string){
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in SingleInherit2::F2\n");
+                printf("\tin SingleInherit2::F2\n");
             }
+            exit(1);
         }
 
 };
@@ -158,11 +175,16 @@ class DoubleInheritChild1:public ParentThree, public ParentFour
         //     cout << "called DoubleInheritChild1::F4" << endl;
         // }
         virtual void DoubleInheritChild1Foo1() {
+            if (uaf)
+            cout << "\tUAF Attacked! ";
+            else
+            cout << "\tAttacked! ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in DoubleInheritChild1::F1\n");
+                printf("\tin DoubleInheritChild1::F1\n");
             }
+            exit(1);
         }
         void overflow() {
 
@@ -174,39 +196,47 @@ class DoubleInheritChild1:public ParentThree, public ParentFour
 
 
 };
-class DoubleInheritChild2:public ParentThree, public ParentFour
+class DoubleInheritChild2:public ParentFour, public ParentFive
 {
     public:
         virtual void ParentFourfoo1(char *string)
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in DoubleInheritChild2::F1\n");
+                printf("\tin DoubleInheritChild2::F1\n");
             }
+            exit(1);
         }
         virtual void ParentFourfoo2(char *string){
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in DoubleInheritChild2::F2\n");
+                printf("\tin DoubleInheritChild2::F2\n");
             }
+            exit(1);
         }
 
         virtual void ParentFivefoo1(char *string){
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in DoubleInheritChild2::F3\n");
+                printf("\tin DoubleInheritChild2::F3\n");
             }
+            exit(1);
         }
         virtual void ParentFivefoo2(char *string)
         {
+            cout << string << " ";
             printf("%d %d\n", arg1, arg2);
             if (debug)
             {
-                printf("in DoubleInheritChild2::F4\n");
+                printf("\tin DoubleInheritChild2::F4\n");
             }
+            exit(1);
         }
 
 
@@ -214,12 +244,14 @@ class DoubleInheritChild2:public ParentThree, public ParentFour
 
 
 void doSyscall(int x, char* string) {
+    cout << string << " ";
     printf("%d %d\n", arg1, arg2);
 
     if (debug)
     {
-        printf("in doSyscall func\n");
+        printf("\tin doSyscall func\n");
     }
+    exit(1);
     // cout << "at doSyscall function ATTACK successful\n";
 
     // cout << "calling system with args: " << string << endl;
@@ -430,17 +462,17 @@ void doUAF (void* ptr, int size) {
 
         default: {
             cout << "bad first option\n";
-            exit(0);
+            exit(2);
             break;
         }
     }
 
 
-    if (debug && newPtr!=ptr)
+    if (/*debug && */newPtr!=ptr)
     {
         cout << "UAF new pointer not in the same location" << endl;
-        printf("Old = %p New = %p\n", ptr, newPtr);
-        exit(0);
+        // printf("Old = %p New = %p\n", ptr, newPtr);
+        exit(3);
     }
 }
 
@@ -450,7 +482,7 @@ int main(int argc, char const *argv[])
     if (argc < 3)
     {
         cout << "not enough params\n";
-        exit(0);
+        exit(2);
     }
 
     debug = 0;
@@ -463,7 +495,6 @@ int main(int argc, char const *argv[])
         debug = 1;   
     }
 
-    int uaf = 0;
     if (argc == 4 && strcmp(argv[3], "u") == 0) 
     {
         uaf = 1;   
@@ -477,7 +508,9 @@ int main(int argc, char const *argv[])
     arg1 = atoi(argv[1]);
     arg2 = atoi(argv[2]);
 
-
+    if(uaf) {
+        attackString = "\tUAF Attacked!";
+    }
 // SET DESTINATIONS
     switch (atoi(argv[1])) {  //todo fix
 
@@ -487,13 +520,13 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);
+                exit(2);
             }
 
+            cout << "\tDestination: Val.Vtbl.Strt" << endl;
             if (uaf) break; // if uaf enabled then we just create an object of that type
 
-            if (debug)
-            cout << "point to the start of a vtable with valid inheritance" << endl;
+            // if (debug)
 
             if (atoi(argv[2]) >= 12)  // double inherit
             {
@@ -520,7 +553,7 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);
+                exit(2);
             }
 
             // if (uaf) break; // if uaf enabled then we just create an object of that type
@@ -528,6 +561,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to the middle of a vtable with valid inheritance" << endl;
+            cout << "\tDestination: Val.Vtbl.Midl" << endl;
 
             if (atoi(argv[2]) >= 12)  // double inherit
             {
@@ -549,6 +583,7 @@ int main(int argc, char const *argv[])
 
         case 2:  // start of good vable point to bad inheritance func:
         {
+            cout << "\tDestination: InVal.Vtbl.Strt" << endl;
             if (uaf) break; // if uaf enabled then we just create an object of that type
 
             
@@ -582,6 +617,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to the middle of a vtable with invalid inheritance" << endl;
+            cout << "\tDestination: InVal.Vtbl.Midl" << endl;
 
             if (atoi(argv[2]) > 7)  // double inherit
             {
@@ -609,6 +645,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to a crafted vtable with valid inheritance" << endl;
+            cout << "\tDestination: Val.Vtbl.Crafted" << endl;
 
 
             if (atoi(argv[2]) > 7)  // double inherit
@@ -651,6 +688,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to a crafted vtable with invalid inheritance" << endl;
+            cout << "\tDestination: InVal.Vtbl.Crafted" << endl;
 
             // dont need this just point to P3 object 
             if (atoi(argv[2]) > 7)  // double inherit
@@ -695,6 +733,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to a nonClassFunc" << endl;
+            cout << "\tDestination: nonClassFunc" << endl;
 
             // make a buffer and use it as a vtable point to doSyscall
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
@@ -716,6 +755,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to the middle of a nonClassFunc" << endl;
+            cout << "\tDestination: nonClassFunc.Midl" << endl;
 
             // make a buffer and use it as a vtable point to syslbl
             void** buffer = (void**)malloc (sizeof(void*) * 8);  // make it longer than necessary
@@ -740,9 +780,10 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);            
+                exit(2);            
             }
 
+            cout << "\tDestination: Val.Vtbl.Strt DoubleInherit" << endl;
             if (uaf) break; // if uaf enabled then we just create an object of that type
 
             
@@ -762,7 +803,7 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);            
+                exit(2);            
             }
 
             // if (uaf) break; // if uaf enabled then we just create an object of that type
@@ -770,6 +811,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to the middle of a vtable of other parent in double inheritance" << endl;
+            cout << "\tDestination: Val.Vtbl.Midl DoubleInherit" << endl;
 
             ParentFour* object2 = new ParentFour();
             void* vtableO2 = (void*)*(void**)object2;
@@ -785,9 +827,10 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);            
+                exit(2);            
             }
 
+            cout << "\tDestination: InVal.Vtbl.Strt DoubleInherit" << endl;
             if (uaf) break; // if uaf enabled then we just create an object of that type
 
             
@@ -807,7 +850,7 @@ int main(int argc, char const *argv[])
             {
                 if(debug)
                 cout << "not possible for now\n";
-                exit(0);            
+                exit(2);            
             }
 
             // if (uaf) break; // if uaf enabled then we just create an object of that type
@@ -815,6 +858,7 @@ int main(int argc, char const *argv[])
             
             if (debug)
             cout << "point to the middle of a vtable of third unrelated parent in double inheritance" << endl;
+            cout << "\tDestination: InVal.Vtbl.Midl DoubleInherit" << endl;
 
             ParentFive* object2 = new ParentFive();
             void* vtableO2 = (void*)*(void**)object2;
@@ -828,7 +872,7 @@ int main(int argc, char const *argv[])
 
         default: {
             cout << "bad first option\n";
-            exit(0);
+            exit(2);
             break;
         }
     }
@@ -837,8 +881,9 @@ int main(int argc, char const *argv[])
     switch (atoi(argv[2])) {  //todo fix
         case 0:  //stack+SingleInherit+sequentialOverFlow:
         {
-            if (debug)
-            cout << "stack+SingleInherit+sequentialOverFlow\n";
+            // if (debug)
+            cout << "\tObject Atacked: SingleInherit\n";
+            cout << "\tMethod: stack+sequentialOverFlow\n";
             SingleInherit1 singleObj;
             void* buffer[3];
 
@@ -848,7 +893,7 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
 
             if (((void*)object < (void*)buffer))
@@ -857,7 +902,7 @@ int main(int argc, char const *argv[])
                     cout << "*****cant overflow...object before buffer" << endl;
                     printf("object = %p\tbuffer = %p\n", object, buffer);
                 }
-                exit(0);
+                exit(3);
             }
 
             if (debug) {
@@ -887,8 +932,12 @@ int main(int argc, char const *argv[])
 
         case 1:  // heap+SingleInherit+sequentialOverFlow:
         {
-            if (debug)
-            cout << "heap+SingleInherit+sequentialOverFlow\n";
+            cout << "\tObject Atacked: SingleInherit\n";
+            if (!uaf)
+            cout << "\tMethod: heap+sequentialOverFlow\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";        
+
             // void** buffer = (void **)malloc(sizeof(void*)*3);
             void** buffer = new void*[1];   // stick with 1 otherwise get memory dump
             // void** buffer = (void **)malloc(0x30);
@@ -913,7 +962,7 @@ int main(int argc, char const *argv[])
             {
                 if (debug)
                 cout << "*****cant overflow...object before buffer" << endl;
-                exit(0);
+                exit(3);
             }
 
 
@@ -948,8 +997,10 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
+            cout << "\tObject Atacked: SingleInherit\n";
+            cout << "\tMethod: stack+indirectOverwrite\n";   
 
             if (debug)
             cout << "stack+SingleInherit+indirectOverwrite\n";
@@ -974,8 +1025,12 @@ int main(int argc, char const *argv[])
 
         case 3:  // heap+SingleInherit+indirectOverwrite:
         {
-            if (debug)
-            cout << "heap+SingleInherit+indirectOverwrite\n";
+            cout << "\tObject Atacked: SingleInherit\n";
+            if (!uaf)
+            cout << "\tMethod: heap+indirectOverwrite\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
+
             ParentOne* object = new SingleInherit1();
 
             if (debug)
@@ -1012,11 +1067,11 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
+            cout << "\tObject Atacked: SingleInherit\n";
+            cout << "\tMethod: stack+sequentialOverFlow\n";
 
-            if (debug)
-            cout << "stack+SingleInherit+sequentialOverFlow\n";
             SingleInherit1 singleObj;
             void* buffer[3];
 
@@ -1028,7 +1083,7 @@ int main(int argc, char const *argv[])
                 cout << "*****cant overflow...object before buffer" << endl;
                 if (debug)
                 printf("object = %p\tbuffer = %p\n", object, buffer);
-                exit(0);
+                exit(3);
             }
 
             if (debug)
@@ -1059,8 +1114,11 @@ int main(int argc, char const *argv[])
         case 5:  // heap+SingleInherit+sequentialOverFlow:
         {
 
-            if (debug)
-            cout << "heap+SingleInherit+sequentialOverFlow\n";
+            cout << "\tObject Atacked: SingleInherit\n";
+            if (!uaf)
+            cout << "\tMethod: heap+sequentialOverFlow\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
             // void** buffer = (void **)malloc(sizeof(void*)*3);
             void** buffer = new void*[1];   // stick with 1 otherwise get memory dump
             // void** buffer = (void **)malloc(0x30);
@@ -1086,7 +1144,7 @@ int main(int argc, char const *argv[])
             {
                 if (debug)
                     cout << "*****cant overflow...object before buffer" << endl;
-                exit(0);
+                exit(3);
             }
 
 
@@ -1120,11 +1178,11 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
+            cout << "\tObject Atacked: SingleInherit\n";
+            cout << "\tMethod: stack+indirectOverwrite\n";        
 
-            if (debug)
-            cout << "stack+SingleInherit+indirectOverwrite\n";
             SingleInherit1 singleObj;
 
             SingleInherit1* object = &singleObj;
@@ -1146,6 +1204,12 @@ int main(int argc, char const *argv[])
 
         case 7:  // heap+SingleInherit+indirectOverwrite:
         {
+            cout << "\tObject Atacked: SingleInherit\n";
+            if (!uaf)
+            cout << "\tMethod: heap+indirectOverwrite\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
+
             if (debug)
             cout << "heap+SingleInherit+indirectOverwrite\n";
             SingleInherit1* object = new SingleInherit1();
@@ -1184,11 +1248,12 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
 
-            if (debug)
-            cout << "stack+DoubleInherit+withinObjectOverFlow\n";
+            cout << "\tObject Atacked: DoubleInheritChild\n";
+            cout << "\tMethod: stack+withinObjectOverFlow\n";        
+
             DoubleInheritChild1 doubleObj;
 
             DoubleInheritChild1* object = &doubleObj;
@@ -1214,8 +1279,11 @@ int main(int argc, char const *argv[])
 
         case 9:  // heap+DoubleInherit+withinObjectOverFlow:
         {
-            if (debug)
-                cout << "heap+DoubleInherit+withinObjectOverFlow\n";
+            cout << "\tObject Atacked: DoubleInheritChild\n";
+            if (!uaf)
+            cout << "\tMethod: heap+withinObjectOverFlow\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
 
             DoubleInheritChild1* object = new DoubleInheritChild1();
 
@@ -1254,11 +1322,11 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
+            cout << "\tObject Atacked: DoubleInheritChild\n";
+            cout << "\tMethod: stack+indirectOverwrite\n";        
 
-            if (debug)
-            cout << "stack+DoubleInherit+INdirectOverwrite\n";
             DoubleInheritChild1 doubleObj;
 
             DoubleInheritChild1* object = &doubleObj;
@@ -1282,8 +1350,11 @@ int main(int argc, char const *argv[])
         case 11:  // heap+DoubleInherit+INdirectOverwrite:
         {
 
-            if (debug)
-                cout << "heap+DoubleInherit+INdirectOverwrite\n";
+            cout << "\tObject Atacked: DoubleInheritChild\n";
+            if (!uaf)
+            cout << "\tMethod: heap+indirectOverwrite\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
 
             DoubleInheritChild1* object = new DoubleInheritChild1();
 
@@ -1321,12 +1392,11 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
 
-            if (debug)
-                cout << "stack+DoubleInheritChild+sequentialOverFlow\n";
-
+            cout << "\tObject Atacked: DoubleInheritParent\n";
+            cout << "\tMethod: stack+sequentialOverFlow\n";        
 
             if (arg1 > 1)
             {
@@ -1341,7 +1411,7 @@ int main(int argc, char const *argv[])
                     cout << "*****cant overflow...object before buffer" << endl;
                     if (debug)
                     printf("object = %p\tbuffer = %p\n", object, buffer);
-                    exit(0);
+                    exit(3);
                 }
 
                 if (debug)
@@ -1382,7 +1452,7 @@ int main(int argc, char const *argv[])
                     cout << "*****cant overflow...object before buffer" << endl;
                     if (debug)
                     printf("object = %p\tbuffer = %p\n", object, buffer);
-                    exit(0);
+                    exit(3);
                 }
 
                 if (debug)
@@ -1423,7 +1493,7 @@ int main(int argc, char const *argv[])
                     cout << "*****cant overflow...object before buffer" << endl;
                     if (debug)
                     printf("object = %p\tbuffer = %p\n", object, buffer);
-                    exit(0);
+                    exit(3);
                 }
 
                 if (debug)
@@ -1455,8 +1525,11 @@ int main(int argc, char const *argv[])
         case 13:  // heap+DoubleInheritChild+sequentialOverFlow:
         {
 
-            if (debug)
-                cout << "heap+DoubleInheritChild+sequentialOverFlow\n";
+            cout << "\tObject Atacked: DoubleInheritParent\n";
+            if (!uaf)
+            cout << "\tMethod: heap+sequentialOverFlow\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
 
             if (arg1 > 1)
             {
@@ -1481,7 +1554,7 @@ int main(int argc, char const *argv[])
                 {
                     if (debug)
                     cout << "*****cant overflow...object before buffer" << endl;
-                    exit(0);
+                    exit(3);
                 }
 
 
@@ -1530,7 +1603,7 @@ int main(int argc, char const *argv[])
                 {
                     if (debug)
                     cout << "*****cant overflow...object before buffer" << endl;
-                    exit(0);
+                    exit(3);
                 }
 
 
@@ -1578,7 +1651,7 @@ int main(int argc, char const *argv[])
                 {
                     if (debug)
                     cout << "*****cant overflow...object before buffer" << endl;
-                    exit(0);
+                    exit(3);
                 }
 
 
@@ -1613,8 +1686,10 @@ int main(int argc, char const *argv[])
                 if (debug) {
                     cout << "no UAF on stack" << endl;
                 }
-                exit(0);
+                exit(2);
             }
+            cout << "\tObject Atacked: DoubleInheritParent\n";
+            cout << "\tMethod: stack+indirectOverwrite\n";        
 
             if (debug)
                 cout << "stack+DoubleInheritChild+indirectOverwrite\n";
@@ -1686,8 +1761,12 @@ int main(int argc, char const *argv[])
 
         case 15:  // heap+DoubleInheritChild+indirectOverwrite:
         {
-            if (debug)
-                cout << "heap+DoubleInheritChild+indirectOverwrite\n";
+
+            cout << "\tObject Atacked: DoubleInheritParent\n";
+            if (!uaf)
+            cout << "\tMethod: heap+withinObjectOverFlow\n";        
+            else 
+            cout << "\tMethod: heap+UAF\n";
 
 
             if (arg1 > 1)
@@ -1784,7 +1863,7 @@ int main(int argc, char const *argv[])
 
         default: {
             cout << "bad second option\n";
-            exit(0);
+            exit(2);
             break;
         }
     }
@@ -1796,11 +1875,15 @@ int main(int argc, char const *argv[])
 syslbl:
     // system(attackString);
     // printf("%s\n", "at syslbl ATTACK successful\n");
-    printf("%d %d\n", arg1, arg2);
+    // printf("%d %d\n", arg1, arg2);
+    // printf("", arg1, arg2);
+    if(uaf)
+    cout << flush << "\tUAF Attacked! " << arg1 << " " << arg2;
+    else
+    cout << flush << "\tAttacked! " << arg1 << " " << arg2;
     if(debug)
-    cout << "at syslbl ATTACK successful\n";
-    return 0;
-
+        cout << "at syslbl ATTACK successful \n";
+    exit(1);
 
 
  //    ******************uaf
