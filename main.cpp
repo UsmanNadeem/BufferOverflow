@@ -15,19 +15,22 @@ int main(int argc, char const *argv[]) {
 
 	std::cout << "\n*******************************************************\n";
 	std::cout << "Running Original Benchmark\n";
-	int a = foo (argc, argv, "/home/linux/Desktop/bench/attack"); 
-	std::cout << "Running CPI compiled Benchmark\n";
-	int b = foo (argc, argv, "/home/linux/Desktop/bench/attack.cpi"); 
-	std::cout << "Running CPS compiled Benchmark\n";
-	int c = foo (argc, argv, "/home/linux/Desktop/bench/attack.cps"); 
-	std::cout << "Running SS compiled Benchmark\n";
-	int d = foo (argc, argv, "/home/linux/Desktop/bench/attack.ss"); 
+	int a = foo (argc, argv, "/home/linux/Desktop/bench/attack");
+
+	// std::cout << "Running CPI compiled Benchmark\n";
+	// int b = foo (argc, argv, "/home/linux/Desktop/bench/attack.cpi"); 
+
+	// std::cout << "Running CPS compiled Benchmark\n";
+	// int c = foo (argc, argv, "/home/linux/Desktop/bench/attack.cps"); 
+
+	// std::cout << "Running SS compiled Benchmark\n";
+	// int d = foo (argc, argv, "/home/linux/Desktop/bench/attack.ss"); 
 
 	std::cout << "\n\n*******************************************************\n";
-	std::cout << "Original Passed: " << a << "/" << 90 << std::endl; 
-	std::cout << "CPI Passed: " << b << "/" << 90 << std::endl; 
-	std::cout << "CPS Passed: " << c << "/" << 90 << std::endl; 
-	std::cout << "SS Passed: " << d << "/" << 90 << std::endl; 
+	std::cout << "Original Attacks Succeeded: " << a << "/" << 90 << std::endl; 
+	// std::cout << "CPI Attacks Succeeded: " << b << "/" << 90 << std::endl; 
+	// std::cout << "CPS Attacks Succeeded: " << c << "/" << 90 << std::endl; 
+	// std::cout << "SS Attacks Succeeded: " << d << "/" << 90 << std::endl; 
 	return 0;
 }
 
@@ -72,8 +75,9 @@ int foo(int argc, char const *argv[], std::string fileName)
 				sprintf(command,"%s %d %d", fileName.c_str(), i, j);
 
 			if(debug) cout << "executing " << command << endl;
+				cout << command << endl;
 
-			std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
+			// std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
 
 			int status = system(command);
 
@@ -81,7 +85,7 @@ int foo(int argc, char const *argv[], std::string fileName)
 				int result = WEXITSTATUS(status);
 				if (result == 1) ++numPassed;
 			}
-			std::cout << "\n\n";
+			// std::cout << "\n\n";
 
 			if (j == 0
 			|| j == 2
@@ -108,8 +112,9 @@ int foo(int argc, char const *argv[], std::string fileName)
 			else
 				sprintf(commandUAF,"%s %d %d u", fileName.c_str(), i, j);
 			if(debug) std::cout << "executing " << commandUAF << endl;
+				cout << commandUAF << endl;
 
-			std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
+			// std::cout << "Now running test #" << ++currentNum << "/" << total << ":\n";
 			status = system(command);
 			if (WIFEXITED(status)) {
 				int result = WEXITSTATUS(status);
